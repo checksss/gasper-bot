@@ -1,6 +1,8 @@
 import { ConnectionManager } from 'typeorm';
-import { guildSetting } from '../models/Client_guildSettings';
-import { dbSecrets } from '../config';
+import { GuildSettings } from '../models/GuildSettings';
+import { databaseName, dbSecrets } from '../config';
+import { Infractions } from '../models/Infractions';
+import { UserSettings } from '../models/UserSettings';
 
 const connectionManager = new ConnectionManager();
 connectionManager.create({
@@ -13,7 +15,7 @@ connectionManager.create({
 	host: dbSecrets.dbHost,
 	port: dbSecrets.dbPort,
 	username: dbSecrets.dbUser,
-	entities: [guildSetting],
+	entities: [GuildSettings, Infractions, UserSettings],
 });
 
 export default connectionManager;
