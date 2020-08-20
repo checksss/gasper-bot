@@ -1,0 +1,11 @@
+node_modules
+.idea
+.vscode
+dist
+src/config.ts
+src/config.ts.prod
+package-lock.json
+assets
+for_the_lurkers
+db.sqlite
+logs

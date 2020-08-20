@@ -1,0 +1,19 @@
+import { ConnectionManager } from 'typeorm';
+import { guildSetting } from '../models/Client_guildSettings';
+import { dbSecrets } from '../config';
+
+const connectionManager = new ConnectionManager();
+connectionManager.create({
+	logging: true,
+	synchronize: true,
+	name: dbSecrets.dbName,
+	database: dbSecrets.dbName,
+	password: dbSecrets.dbPass,
+	type: 'mariadb',
+	host: dbSecrets.dbHost,
+	port: dbSecrets.dbPort,
+	username: dbSecrets.dbUser,
+	entities: [guildSetting],
+});
+
+export default connectionManager;
