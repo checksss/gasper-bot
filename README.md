@@ -31,7 +31,12 @@
 - [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=0&scope=bot, 'no role') (wouldn't create role, but some commands may not work): 
 - [with admin permission](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=8&scope=bot, 'admin shit')
 - [with all relevant perms except admin](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=2147483127&scope=bot, 'i can almost everything!')
-
+     
+      
+       
+       
+       
+# Use Gasper as a template to create your own bot
 ## First of all:   
 Rename `src/template_config.ts` to `config.ts` and add your secret values there.  
 Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.  
