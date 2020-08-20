@@ -23,14 +23,14 @@
 
 # Add Gasper to your server!
 ## Productive version
-- [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot) (wouldn't create role, but some commands may not work): 
-- [with admin permission]()https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=8&scope=bot
-- [with all relevant perms except admin](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=2147483127&scope=bot)
+- [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot, 'no role') (wouldn't create role, but some commands may not work): 
+- [with admin permission](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=8&scope=bot, 'admin shit')
+- [with all relevant perms except admin](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=2147483127&scope=bot, 'i can almost everything!')
 
 ## In-Dev version (may have downtimes)
-- [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=0&scope=bot) (wouldn't create role, but some commands may not work): 
-- [with admin permission]()https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=8&scope=bot
-- [with all relevant perms except admin](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=2147483127&scope=bot)
+- [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=0&scope=bot, 'no role') (wouldn't create role, but some commands may not work): 
+- [with admin permission](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=8&scope=bot, 'admin shit')
+- [with all relevant perms except admin](https://discordapp.com/api/oauth2/authorize?client_id=700263987249545226&permissions=2147483127&scope=bot, 'i can almost everything!')
 
 ## First of all:   
 Rename `src/template_config.ts` to `config.ts` and add your secret values there.  
