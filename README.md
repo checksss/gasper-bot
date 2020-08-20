@@ -20,3 +20,13 @@
 >  
 >You should have received a copy of the GNU Affero General Public License  
 >along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+##First of all: 
+Rename `src/template_config.ts` to `config.ts` and add your secret values then.
+Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.
+
+##Hardcoded stuff:
+I hardcoded the channel IDs for the `suggetion` and the `bugreport` command. 
+Also the default URLs, if there's no other URL provided by the user. 
+You'll find both files in `src/commands/util`. 
