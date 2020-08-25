@@ -38,8 +38,13 @@
        
 # Use Gasper as a template to create your own bot
 ## First of all:   
-Rename `src/template_config.ts` to `config.ts` and add your secret values there.  
-Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.  
+- Install the Typescript package global (`npm i -g typescript`)   
+- Rename `src/template_config.ts` to `config.ts` and add your secret values there.\*  
+- Run `npm i` in the bots main directory      
+- Run `tsc`    
+- Start the bot with `node dist/src/shard.js`
+
+*\*Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.*
 
 ## Hardcoded stuff:  
 I hardcoded the channel IDs for the `suggestion` and the `bugreport` command.   
