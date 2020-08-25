@@ -40,9 +40,6 @@
 ## First of all:   
 - Install the Typescript package global (`npm i -g typescript`)   
 - Rename `src/template_config.ts` to `config.ts` and add your secret values there.\*  
-- Run `npm i` in the bots main directory      
-- Run `tsc`    
-- Start the bot with `node dist/src/shard.js`
 
 *\*Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.*
 
@@ -56,4 +53,6 @@ Also the default URLs, if there's no other URL provided by the user.
 You'll find both files in `src/commands/util`.   
 
 ## Starting:    
-run `npm i` & then `tsc` in the base directory. After this, you can already start with `node dist/src/shard.js`
+- Run `npm i` in the bots main directory      
+- Run `tsc`    
+- Start the bot with `node dist/src/shard.js`
