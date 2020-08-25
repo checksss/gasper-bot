@@ -44,8 +44,10 @@ Be careful who you add as bot owner as they have access to commands like `eval` 
 ## Hardcoded stuff:  
 I hardcoded the channel IDs for the `suggestion` and the `bugreport` command.   
 - I'll change this, when i created a dev-command for it.        
+
 Also the default URLs, if there's no other URL provided by the user.       
 - I'm not sure, if I'll take this to src/config.ts or if I'll create a dev-command for this.    
+
 You'll find both files in `src/commands/util`.   
 
 ## Starting:    
