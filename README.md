@@ -42,8 +42,10 @@ Rename `src/template_config.ts` to `config.ts` and add your secret values there.
 Be careful who you add as bot owner as they have access to commands like `eval` and could reveal your token with it.  
 
 ## Hardcoded stuff:  
-I hardcoded the channel IDs for the `suggetion` and the `bugreport` command.   
-Also the default URLs, if there's no other URL provided by the user.   
+I hardcoded the channel IDs for the `suggestion` and the `bugreport` command.   
+    - I'll change this, when i created a dev-command for it.
+Also the default URLs, if there's no other URL provided by the user.  
+    - I'm not sure, if I'll take this to src/config.ts or if I'll create a dev-command for this.  
 You'll find both files in `src/commands/util`.   
 
 ## Starting:    
