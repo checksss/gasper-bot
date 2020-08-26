@@ -24,7 +24,7 @@ export default class MessageLogger {
             author: {
                 name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**New Message**',
+            title: '**New Message** | (' + msg.id + ')',
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
@@ -46,9 +46,11 @@ export default class MessageLogger {
         if (!newMsg.guild.me.permissions.has('EMBED_LINKS')) {
             return log.send(stripIndents`
             __**${oldMsg.author.tag} | ${newMsg.member.displayName}** (${oldMsg.author.id})__
-            **Message edited**
+            **Message edited** | (${oldMsg.id})
             __Old Content:__
-            \`\`\`${oldMsg.content}\`\`\`
+            ${oldMsg.content}
+
+
             https://discord.com/channels/${newMsg.guild.id}/${newMsg.channel.id}/${newMsg.id}
 
             *${newMsg.channel} ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}*
@@ -58,18 +60,24 @@ export default class MessageLogger {
             author: {
                 name: `${oldMsg.author.tag} | ${newMsg.member.displayName} (${oldMsg.author.id})`
             },
-            title: '**Message edited**',
+            title: '**Message edited** | (' + oldMsg.id + ')',
             //color: newMsg.member.displayHexColor,
             thumbnail: {
                 url: newMsg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
             description: stripIndents`
-            __Old Content:__
-            \`\`\`${oldMsg.content}\`\`\`
-            __New Content:__
-            \`\`\`${newMsg.content}\`\`\`
             **[Jump to message!](https://discord.com/channels/${newMsg.guild.id}/${newMsg.channel.id}/${newMsg.id})**
             `,
+            fields: [
+                {
+                    name: "Old Content:",
+                    value: oldMsg.content
+                },
+                {
+                    name: "New Content:",
+                    value: newMsg.content
+                }
+            ],
             footer: {
                 text: `#${(newMsg.channel as TextChannel).name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
                 iconURL: newMsg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
@@ -89,8 +97,10 @@ export default class MessageLogger {
         if (!msg.guild.me.permissions.has('EMBED_LINKS')) {
             return log.send(stripIndents`
             __**${msg.author.tag} | ${msg.member.displayName}** (${msg.author.id})__
-            **Deleted Message**
-            \`\`\`${msg}\`\`\`
+            **Deleted Message** | (${msg.id})
+            ${msg}
+
+
             in: ${msg.channel}
             *Deleted by: ${executor.tag} (${executor.id}) | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}*
             `, { split: true })
@@ -100,13 +110,13 @@ export default class MessageLogger {
             author: {
                 name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**Deleted Message**',
+            title: '**Deleted Message** | (' + msg.id + ')',
             color: msg.member.displayHexColor,
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
             description: stripIndents`
-            \`\`\`${msg.content}\`\`\`
+            ${msg.content}
             *Deleted by ${executor.tag} (${executor.id})*
             `,
             footer: {

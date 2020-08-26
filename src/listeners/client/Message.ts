@@ -54,9 +54,9 @@ export default class MessageListener extends Listener {
 		const logchannel = this.client.guildsettings.get(message.guild, 'config.message_logchannel', '');
 		const msglog = message.guild.channels.cache.get(logchannel) as TextChannel;
 
-		// if (msglog && msglog != null && !message.content.startsWith(guildprefix)) {
-		// 	MessageLogger.onSend(message, msglog)
-		// }
+		if (msglog && msglog != null && !message.content.startsWith(guildprefix)) {
+			MessageLogger.onSend(message, msglog)
+		}
 
 		return wordFilters.check(this.client, message, list);
 	}

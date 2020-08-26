@@ -1,6 +1,6 @@
 {
   "name": "gasper-bot",
-  "version": "0.0.97",
+  "version": "0.0.98",
   "description": "One bot to rule 'em all!",
   "main": "dist/src/spawn.js",
   "dependencies": {
@@ -35,7 +35,7 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/shard.ts",
     "update:packages": "node ../wipe-dependencies.js && rm -rf node_modules && npm update --save-dev && npm update --save && npm i"
   },
   "repository": {
