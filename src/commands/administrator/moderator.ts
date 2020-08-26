@@ -61,7 +61,18 @@ export default class ModCommand extends Command {
         if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id).concat(this.client.ownerID);
+        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
+        for (var owner in owners) {
+            defaultMods.push(owner);
+        }
+
+        //@ts-ignore
+        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
+        owners.forEach(o => {
+            if (!moderators.includes(o)) {
+                moderators.push(o);
+            }
+        })
 
         //@ts-ignore
         const moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', []);
