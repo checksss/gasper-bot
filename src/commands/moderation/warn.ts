@@ -1,11 +1,7 @@
 import { Command } from 'discord-akairo';
-import { Message, GuildMember } from 'discord.js';
-import InfractionsProvider from '../../structures/InfractionsProvider';
-import BotClient from '../../client/BotClient';
-import { MessageEmbed } from 'discord.js';
+import { Message, GuildMember, MessageEmbed, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
-import { TextChannel } from 'discord.js';
 import { owners } from '../../config';
 
 export default class WarnCommand extends Command {
@@ -152,7 +148,7 @@ export default class WarnCommand extends Command {
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
         await msg.edit(`Successfully warned **${member.user.tag}**`);

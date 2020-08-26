@@ -1,5 +1,5 @@
 import { Command, PrefixSupplier, Argument } from 'discord-akairo';
-import { Message, GuildMember, Role, User } from 'discord.js';
+import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { owners } from '../../config';
 
@@ -93,11 +93,13 @@ export default class AdminCommand extends Command {
             `)
         }
 
+
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
+
 
         switch (method) {
             case 'add':

@@ -77,11 +77,13 @@ export default class SuggestionsCommand extends Command {
         await msg.edit(embed);
 
         let submitEmbed = await makeSuggestEmbed(message, client, author, answers);
-        let suggestionsChannel = home.channels.cache.get('745862542659682384');
-        if (suggestionsChannel) {
-            await (suggestionsChannel as TextChannel).send(submitEmbed);
+        //@ts-ignore
+        let scID: string = this.client.guildsettings.get('global', 'config.suggestion_logchannel', '')
+        let suggestionChannel = home.channels.cache.get(scID);
+        if (suggestionChannel && scID !== '') {
+            (suggestionChannel as TextChannel).send(submitEmbed);
         } else {
-            await owner.send(submitEmbed);
+            owner.send(submitEmbed);
         }
 
         description = stripIndents`
@@ -92,7 +94,7 @@ export default class SuggestionsCommand extends Command {
         pageNr = 'submitted!'
 
         embed = await makeEmbed(message, client, description, pageNr);
-        msg.edit(embed);
+        return msg.edit(embed);
 
     }
 }

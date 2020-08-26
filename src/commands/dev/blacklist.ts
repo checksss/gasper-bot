@@ -1,6 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
-import { User } from 'discord.js';
+import { Message, TextChannel, User, NewsChannel } from 'discord.js';
 
 export default class BlacklistCommand extends Command {
 	public constructor() {
@@ -47,7 +46,7 @@ export default class BlacklistCommand extends Command {
 			message.channel.messages.fetch({ limit: 20 })
 				.then((msgs) => {
 					let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-					message.channel.bulkDelete(messages)
+					(message.channel as TextChannel).bulkDelete(messages)
 				});
 
 			return message.util
@@ -70,7 +69,7 @@ export default class BlacklistCommand extends Command {
 			message.channel.messages.fetch({ limit: 20 })
 				.then((msgs) => {
 					let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-					message.channel.bulkDelete(messages)
+					(message.channel as TextChannel | NewsChannel).bulkDelete(messages)
 				});
 
 			return message.util

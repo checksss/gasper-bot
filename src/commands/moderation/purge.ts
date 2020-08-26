@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, GuildMember } from 'discord.js';
+import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { TextChannel } from 'discord.js';
 import moment from 'moment';
@@ -90,13 +90,13 @@ export default class PurgeCommand extends Command {
                 message.channel.messages.fetch({ limit: 20 })
                     .then((msgs) => {
                         let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                        message.channel.bulkDelete(messages)
+                        (message.channel as TextChannel).bulkDelete(messages)
                     });
 
                 message.channel.messages.fetch({ limit: 100 })
                     .then((msgs) => {
-                        let messages: Message[] = msgs.filter(m => m.author.id === member.id).array().slice(0, amount);
-                        message.channel.bulkDelete(messages).then((deleted) => {
+                        let messages: Message[] = msgs.filter(m => m.author.id === member.id && Date.now() - m.createdTimestamp < 1209600000).array().slice(0, amount);
+                        (message.channel as TextChannel).bulkDelete(messages).then((deleted) => {
                             const embed = new MessageEmbed({
                                 author: {
                                     name: `#${(message.channel as TextChannel).name}`,
@@ -127,11 +127,11 @@ export default class PurgeCommand extends Command {
 
                 message.channel.messages.fetch({ limit: 20 })
                     .then((msgs) => {
-                        let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                        message.channel.bulkDelete(messages)
+                        let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author && Date.now() - m.createdTimestamp < 1209600000).array();
+                        (message.channel as TextChannel).bulkDelete(messages)
                     });
 
-                message.channel.bulkDelete(amount, true).then((deleted) => {
+                (message.channel as TextChannel).bulkDelete(amount, true).then((deleted) => {
                     const embed = new MessageEmbed({
                         author: {
                             name: `#${(message.channel as TextChannel).name}`,
@@ -167,7 +167,7 @@ export default class PurgeCommand extends Command {
             message.channel.messages.fetch({ limit: 20 })
                 .then((msgs) => {
                     let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                    message.channel.bulkDelete(messages)
+                    (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
                 });
 
             return message.util!.send(fail);

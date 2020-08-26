@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js';
+import { GuildMember, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
@@ -124,7 +124,7 @@ export default class UnbanCommand extends Command {
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
         await msg.edit(`Successfully unbanned **${user.tag}**`);

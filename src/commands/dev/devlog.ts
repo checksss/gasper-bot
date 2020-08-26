@@ -3,18 +3,18 @@ import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { owners } from '../../config';
 
-export default class ModLogCommand extends Command {
+export default class DevLogCommand extends Command {
     public constructor() {
-        super('modlog', {
-            aliases: ['modlog', 'log', 'logs'],
+        super('devlog', {
+            aliases: ['devlog'],
             description: {
-                content: 'Adds or removes log channel of specified logtype for this server. Valid logtypes are:\n`kick`, `ban`, `warn`, `mute`\n`message`, `message_edit/update`, `message_delete`',
+                content: 'Adds or removes log channel of specified logtype. Valid logtypes are:\n`bugreport`, `suggestion`',
                 usage: '<add/remove> <logtype> <channel>',
-                examples: ['add message_update message-logs', 'remove message_delete #member-logs', 'add kick 606582348552601600']
+                examples: ['add suggestion suggestions-log', 'remove suggestion error-log', 'add bugreport 606582348552601600']
             },
             category: 'Administrator',
             ratelimit: 2,
-            userPermissions: ['ADMINISTRATOR', 'BAN_MEMBERS', 'KICK_MEMBERS', 'MANAGE_GUILD'],
+            ownerOnly: true,
             args: [
                 {
                     id: 'method',
@@ -44,59 +44,14 @@ export default class ModLogCommand extends Command {
     }
 
     public async exec(message: Message, { method, logtype, channel }: { method: string, logtype: string, channel: TextChannel }): Promise<Message | Message[]> {
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         if (message.deletable && !message.deleted) message.delete();
 
-        let defaultAdmins: string[] = [guildOwner.id];
-
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-        if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
+        if (!this.client.ownerID.includes(message.author.id)) return message.util!.reply('only bot owners can use this command.');
         const typecheck = async function (logtype: string) {
             switch (logtype) {
-                case 'kick':
+                case 'bugreport':
                     return true
-                case 'ban':
-                    return true
-                case 'mute':
-                    return true
-                case 'warn':
-                    return true
-                case 'message':
-                    return true
-                case 'message_edit':
-                    logtype = 'message_edit';
-                    return true
-                case 'message_update':
-                    logtype = 'message_edit';
-                    return true
-                case 'msgedit':
-                    logtype = 'message_edit';
-                    return true
-                case 'messageedit':
-                    logtype = 'message_edit';
-                    return true
-                case 'message_delete':
-                    logtype = 'message_delete'
-                    return true
-                case 'messagedelete':
-                    logtype = 'message_delete'
-                    return true
-                case 'msgdelete':
-                    logtype = 'message_delete'
+                case 'suggestion':
                     return true
                 default:
                     return false;
@@ -106,13 +61,13 @@ export default class ModLogCommand extends Command {
         const prefix: string | string[] = await (this.handler.prefix as PrefixSupplier)(message)
         const checktype = await typecheck(logtype)
         if (checktype === false) return message.util!.send(stripIndents`
-        That logtype doesn't exist on \`modlog\`;
-        Try \`${prefix}help modlog\` for help.`);
+        That logtype doesn't exist on \`devlog\`;
+        Try \`${prefix}help devlog\` for help.`);
 
         //@ts-ignore
-        var logchannel: string = await this.client.guildsettings.get(message.guild!, `config.${logtype}_logchannel`, '');
+        var logchannel: string = await this.client.guildsettings.get('global', `config.${logtype}_logchannel`, '');
         //@ts-ignore
-        if (logchannel === '') this.client.guildsettings.set(message.guild!, `config.${logtype}_logchannel`, '');
+        if (logchannel === '') this.client.guildsettings.set('global', `config.${logtype}_logchannel`, '');
 
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
@@ -126,7 +81,7 @@ export default class ModLogCommand extends Command {
                 try {
                     logchannel = channel.id;
                     //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, `config.${logtype}_logchannel`, logchannel);
+                    await this.client.guildsettings.set('global', `config.${logtype}_logchannel`, logchannel);
                 } catch {
                     return message.util!.send('Something went wrong.');
                 }
@@ -137,7 +92,7 @@ export default class ModLogCommand extends Command {
                 try {
                     let newLog: string = '';
                     //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, `config.${logtype}_logchannel`, newLog);
+                    await this.client.guildsettings.set('global', `config.${logtype}_logchannel`, newLog);
                 } catch {
                     return message.util!.send('Something went wrong.');
                 }
@@ -145,8 +100,8 @@ export default class ModLogCommand extends Command {
                 return message.util!.send(`${channel} is no longer set as ${logtype}-log.`);
             default:
                 return message.util!.send(stripIndents`
-                That method doesn't exist on \`modlog\`;
-                Try \`${prefix}help modlog\` for help.`);
+                That method doesn't exist on \`devlog\`;
+                Try \`${prefix}help devlog\` for help.`);
         }
     }
 }

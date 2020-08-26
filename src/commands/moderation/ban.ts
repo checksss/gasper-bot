@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js';
+import { GuildMember, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
@@ -160,11 +160,13 @@ export default class BanCommand extends Command {
             await (logchannel as TextChannel).send(embed);
         }
 
+
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
+
 
         await msg.edit(`Successfully banned **${user.tag}**`);
         return await msg.delete({ timeout: 5000, reason: 'Keeping chat clean' });

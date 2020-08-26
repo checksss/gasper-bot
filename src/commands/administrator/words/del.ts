@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { owners } from '../../../config';
 
 export default class WordCommand extends Command {
@@ -68,7 +68,7 @@ export default class WordCommand extends Command {
 		message.channel.messages.fetch({ limit: 20 })
 			.then((msgs) => {
 				let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-				message.channel.bulkDelete(messages)
+				(message.channel as TextChannel | NewsChannel).bulkDelete(messages)
 			});
 
 		return message.util.send(

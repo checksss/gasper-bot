@@ -161,8 +161,10 @@ export default class BugreportCommand extends Command {
             await msg.edit(embed);
 
             let submitEmbed = await makeReportEmbed(message, client, author, answers, inviteURL)
-            let reportChannel = home.channels.cache.get('745862862228160623');
-            if (reportChannel) {
+            //@ts-ignore
+            let rcID: string = this.client.guildsettings.get('global', 'config.bugreport_logchannel', '')
+            let reportChannel = home.channels.cache.get(rcID);
+            if (reportChannel && rcID !== '') {
                 return (reportChannel as TextChannel).send(submitEmbed);
             } else {
                 return owner.send(submitEmbed);
@@ -178,8 +180,10 @@ export default class BugreportCommand extends Command {
             await msg.edit(embed);
 
             let submitEmbed = await makeReportEmbed(message, client, author, answers, '')
-            let reportChannel = home.channels.cache.get('745862862228160623');
-            if (reportChannel) {
+            //@ts-ignore
+            let rcID: string = this.client.guildsettings.get('global', 'config.bugreport_logchannel', '')
+            let reportChannel = home.channels.cache.get(rcID);
+            if (reportChannel && rcID !== '') {
                 return (reportChannel as TextChannel).send(submitEmbed);
             } else {
                 return owner.send(submitEmbed);

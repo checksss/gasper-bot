@@ -1,6 +1,6 @@
 {
   "name": "gasper-bot",
-  "version": "0.0.96",
+  "version": "0.0.97",
   "description": "One bot to rule 'em all!",
   "main": "dist/src/spawn.js",
   "dependencies": {

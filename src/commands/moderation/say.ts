@@ -1,5 +1,5 @@
 import { Command, Argument } from 'discord-akairo';
-import { Message, Channel, TextChannel } from 'discord.js';
+import { Message, Channel, TextChannel, NewsChannel } from 'discord.js';
 import { owners } from '../../config';
 
 export default class SayCommand extends Command {
@@ -102,11 +102,10 @@ export default class SayCommand extends Command {
         } else {
             textChannel = message.channel as TextChannel;
         }
-
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
         return textChannel.send(content);

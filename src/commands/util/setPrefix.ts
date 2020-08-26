@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { defaultPrefix } from '../../config';
 import { stripIndents } from 'common-tags';
 import { owners } from '../../config';
@@ -10,9 +10,9 @@ export default class SetPrefixCommand extends Command {
 			aliases: ['setprefix', 'newprefix', 'pcustom', 'prefix', 'pfx'],
 			category: 'Util',
 			description: {
-				content: "Add custom prefixes for global use\nOptionally, server admins can change server's prefix",
+				content: "Add custom prefixes for global use\nOptionally, server admins can change server's prefix\nValid methods are:\n- `delete`/`remove`/`del`/`rm` to remove a prefix from your individual prefix-list\n- `server`/`guild`/`local`/`community` to change the server's prefix [Admin-Only]\n- `user`/`me`/`member`/`custom`/`private`/`global` to add a prefix to your prefix-list [DEFAULT]",
 				examples: ['!', '? -o server'],
-				usages: ['<new prefix>', '<new prefix> -for=<method>']
+				usages: ['<new prefix>', '<new prefix> -o <method>']
 			},
 			ratelimit: 3,
 			args: [
@@ -91,12 +91,12 @@ export default class SetPrefixCommand extends Command {
 			//@ts-ignore
 			let pfxAr = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
 			if (!pfxAr.includes(prefix)) return message.util!.reply(`\`${prefix}\` is not set as prefix for you yet.`);
-			let newPfx: Array<string> = [];
-			pfxAr.forEach(p => {
+			let newPfx: string[] = [];
+			pfxAr.forEach((p: string) => {
 				if (p !== prefix) newPfx.push(p);
 			});
 			//@ts-ignore
-			await this.client.usersettings.set(message.author, 'config.prefixes', pfxAr);
+			await this.client.usersettings.set(message.author, 'config.prefixes', newPfx);
 
 			return message.util
 				.reply(`prefix \`${prefix}\` removed!`)
@@ -118,11 +118,13 @@ export default class SetPrefixCommand extends Command {
 			Try \`${message.guild ? pfx : pfx[0]}help setprefix\` for help.`);
 		}
 
-		message.channel.messages.fetch({ limit: 20 })
-			.then((msgs) => {
-				let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-				message.channel.bulkDelete(messages)
-			});
+		if (message.guild!) {
+			message.channel.messages.fetch({ limit: 20 })
+				.then((msgs) => {
+					let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
+					(message.channel as TextChannel | NewsChannel).bulkDelete(messages)
+				});
+		}
 
 		return message.util
 			.reply(`prefix changed to \`${prefix}\` !`)

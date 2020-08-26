@@ -89,7 +89,7 @@ export default class EvalCommand extends Command {
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                message.channel.bulkDelete(messages)
+                (message.channel as Discord.TextChannel | Discord.NewsChannel).bulkDelete(messages)
             });
 
         if (noreturn) return message.author.send(`*Executed in **${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ''}${hrDiff[1] / 1000000}ms.***`);
