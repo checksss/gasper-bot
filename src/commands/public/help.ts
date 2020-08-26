@@ -1,6 +1,8 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { owners } from '../../config';
+import { chmod } from 'fs';
 
 export default class HelpCommand extends Command {
     public constructor() {
@@ -23,17 +25,80 @@ export default class HelpCommand extends Command {
     }
 
     public async exec(message: Message, { command }: { command: Command }): Promise<Message | Message[]> {
+        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const authorMember = await message.guild!.members.fetch(message.author!.id);
+        if (message.deletable && !message.deleted) message.delete();
+
+        // ------------------------------------
+        // ---------- ADMINS ------------------
+        let defaultAdmins: string[] = [guildOwner.id];
+        for (var owner in owners) {
+            defaultAdmins.push(owner);
+        }
+        //@ts-ignore
+        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
+        defaultAdmins.forEach(dA => {
+            if (!administrators.includes(dA)) {
+                administrators = administrators.concat(dA);
+            }
+        })
+        var isAdmin: boolean = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id)).size !== 0;
+        // ------------------------------------
+        // ---------- MODS --------------------
+        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
+        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
+        for (var owner in owners) {
+            defaultMods.push(owner);
+        }
+        //@ts-ignore
+        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
+        owners.forEach(o => {
+            if (!moderators.includes(o)) {
+                moderators.push(o);
+            }
+        })
+        var isMod: boolean = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id)).size !== 0;
+        // ------------------------------------
+        // ---------- DEVS --------------------
+        var isDev: boolean = owners.includes(message.author.id);
+        // ------------------------------------
+        // ---------- GUILDOWNER --------------
+        var isOwner: boolean = guildOwner.id === message.author.id;
+
+
+
         const prefix = await (this.handler.prefix as PrefixSupplier)(message);
+        var rnd = Math.floor(Math.random() * prefix.length) - 1;
         if (!command) {
             const embed = new MessageEmbed()
                 //@ts-ignore
-                .setColor(Math.floor(Math.random() * 12777214) + 1)
-                .addField('⇒ Commands', stripIndents`A list of available commands.
-                    For additional info on a command, type \`${prefix}help <command>\`
-                `);
+                .setColor(message.member.displayColor)
+                .setTitle('Commands')
+                .setDescription(stripIndents`A list of available commands.
+                For additional info on a command, type \`${prefix[rnd]}help <command>\`
+
+
+            `);
 
             for (const category of this.handler.categories.values()) {
-                embed.addField(`⇒ ${category.id.replace(/(\b\w)/gi, (lc): string => lc.toUpperCase())}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' ')}`);
+                var categoryName: string = category.id.replace(/(\b\w)/gi, (lc): string => lc.toUpperCase());
+
+                var ownerCats: string[] = ['Server Owner', 'Administrator', 'Moderation', 'Info', 'Util', 'Public'];
+                var adminCats: string[] = ['Administrator', 'Moderation', 'Info', 'Util', 'Public'];
+                var modCats: string[] = ['Moderation', 'Info', 'Util', 'Public'];
+                var pubCats: string[] = ['Info', 'Util', 'Public'];
+
+                if (isDev && categoryName !== 'Default') {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                } else if (isOwner && !isDev && ownerCats.includes(categoryName)) {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                } else if (isAdmin && !isOwner && !isDev && adminCats.includes(categoryName)) {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                } else if (isMod && !isAdmin && !isOwner && !isDev && modCats.includes(categoryName)) {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                } else if (!isDev && !isOwner && !isAdmin && !isMod && pubCats.includes(categoryName)) {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                }
             }
 
             return message.util!.send(embed);
