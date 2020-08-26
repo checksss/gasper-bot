@@ -12,7 +12,7 @@ export default class DevLogCommand extends Command {
                 usage: '<add/remove> <logtype> <channel>',
                 examples: ['add suggestion suggestions-log', 'remove suggestion error-log', 'add bugreport 606582348552601600']
             },
-            category: 'Administrator',
+            category: 'Dev',
             ratelimit: 2,
             ownerOnly: true,
             args: [
