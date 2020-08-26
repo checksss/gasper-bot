@@ -50,7 +50,7 @@ export default class MessageUpdateListener extends Listener {
         const logchannel = this.client.guildsettings.get(newMessage.guild, 'config.message_edit_logchannel', '');
         const msglog = newMessage.guild.channels.cache.get(logchannel) as TextChannel;
 
-        if (msglog && msglog != null && !newMessage.content.startsWith(guildprefix) && !oldMessage.content.startsWith(guildprefix)) {
+        if (msglog && msglog != null && !newMessage.content.startsWith(guildprefix) && !oldMessage.content.startsWith(guildprefix) && !oldMessage.content.includes(guildprefix) && !newMessage.content.includes(guildprefix)) {
             MessageLogger.onEdit(oldMessage, newMessage, msglog)
         }
 

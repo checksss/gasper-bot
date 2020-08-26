@@ -65,6 +65,17 @@ export default class ModLogCommand extends Command {
 
         var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
         if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
+
+        const editTypes: string[] = ['message_edit', 'message_update', 'msgedit', 'messageedit'];
+        const deleteTypes: string[] = ['message_delete', 'messagedelete', 'msgdelete'];
+
+        if (editTypes.includes(logtype)) {
+            logtype = 'message_edit';
+        } else if (deleteTypes.includes(logtype)) {
+            logtype = 'message_delete'
+        }
+        // dunno why this doesn't work. it always returns 'message_delete' if i use one of these
+
         const typecheck = async function (logtype: string) {
             switch (logtype) {
                 case 'kick':
@@ -78,25 +89,8 @@ export default class ModLogCommand extends Command {
                 case 'message':
                     return true
                 case 'message_edit':
-                    logtype = 'message_edit';
-                    return true
-                case 'message_update':
-                    logtype = 'message_edit';
-                    return true
-                case 'msgedit':
-                    logtype = 'message_edit';
-                    return true
-                case 'messageedit':
-                    logtype = 'message_edit';
                     return true
                 case 'message_delete':
-                    logtype = 'message_delete'
-                    return true
-                case 'messagedelete':
-                    logtype = 'message_delete'
-                    return true
-                case 'msgdelete':
-                    logtype = 'message_delete'
                     return true
                 default:
                     return false;
@@ -135,9 +129,8 @@ export default class ModLogCommand extends Command {
             case 'remove':
                 if (logchannel !== channel.id) return message.util!.send(`${channel} isn't set as ${logtype}-log.`);
                 try {
-                    let newLog: string = '';
                     //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, `config.${logtype}_logchannel`, newLog);
+                    await this.client.guildsettings.delete(message.guild!, `config.${logtype}_logchannel`);
                 } catch {
                     return message.util!.send('Something went wrong.');
                 }

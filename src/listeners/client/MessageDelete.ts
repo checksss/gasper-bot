@@ -30,7 +30,7 @@ export default class MessageDeleteListener extends Listener {
         const logchannel = this.client.guildsettings.get(message.guild, 'config.message_delete_logchannel', '');
         const msglog = message.guild.channels.cache.get(logchannel) as TextChannel;
 
-        if (msglog && msglog != null && !message.content.startsWith(guildprefix)) {
+        if (msglog && msglog != null && !message.content.startsWith(guildprefix) && !message.content.includes(guildprefix)) {
             return MessageLogger.onDelete(message, msglog)
         }
     }

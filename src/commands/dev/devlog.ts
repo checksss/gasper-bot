@@ -90,9 +90,8 @@ export default class DevLogCommand extends Command {
             case 'remove':
                 if (logchannel !== channel.id) return message.util!.send(`${channel} isn't set as ${logtype}-log.`);
                 try {
-                    let newLog: string = '';
                     //@ts-ignore
-                    await this.client.guildsettings.set('global', `config.${logtype}_logchannel`, newLog);
+                    await this.client.guildsettings.delete('global', `config.${logtype}_logchannel`);
                 } catch {
                     return message.util!.send('Something went wrong.');
                 }

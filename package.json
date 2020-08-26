@@ -35,7 +35,7 @@
     "typescript": "^3.9.7"
   },
   "scripts": {
-    "start": "ts-node src/shard.ts",
+    "start": "tsc && node dist/src/shard.js",
     "update:packages": "node ../wipe-dependencies.js && rm -rf node_modules && npm update --save-dev && npm update --save && npm i"
   },
   "repository": {
