@@ -168,7 +168,7 @@ export default class StatsCommand extends Command {
 				},
 				{
 					name: '⇒ Version',
-					value: `v${version}`,
+					value: `[v${version}](https://github.com/datflowts/gasper-bot 'view my GitHub Repository!')`,
 					inline: true
 				},
 				{
