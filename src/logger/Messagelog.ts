@@ -24,7 +24,7 @@ export default class MessageLogger {
             author: {
                 name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**New Message** | (' + msg.id + ')',
+            title: '**New Message** | ' + msg.id,
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
@@ -46,7 +46,7 @@ export default class MessageLogger {
         if (!newMsg.guild.me.permissions.has('EMBED_LINKS')) {
             return log.send(stripIndents`
             __**${oldMsg.author.tag} | ${newMsg.member.displayName}** (${oldMsg.author.id})__
-            **Message edited** | (${oldMsg.id})
+            **Message edited** | ${oldMsg.id}
             __Old Content:__
             ${oldMsg.content}
 
@@ -60,7 +60,7 @@ export default class MessageLogger {
             author: {
                 name: `${oldMsg.author.tag} | ${newMsg.member.displayName} (${oldMsg.author.id})`
             },
-            title: '**Message edited** | (' + oldMsg.id + ')',
+            title: '**Message edited** | ' + oldMsg.id,
             //color: newMsg.member.displayHexColor,
             thumbnail: {
                 url: newMsg.author.displayAvatarURL({ format: 'png', dynamic: true })
@@ -74,8 +74,16 @@ export default class MessageLogger {
                     value: oldMsg.content
                 },
                 {
+                    name: '<:empty:744513757962829845>',
+                    value: '<:empty:744513757962829845>'
+                },
+                {
                     name: "New Content:",
                     value: newMsg.content
+                },
+                {
+                    name: '<:empty:744513757962829845>',
+                    value: '<:empty:744513757962829845>'
                 }
             ],
             footer: {
@@ -91,18 +99,21 @@ export default class MessageLogger {
         let now: moment.Moment = moment.utc(Date.now());
         let nowDay: string = now.format('DD');
 
-        const auditLog = await msg.guild.fetchAuditLogs({ type: 'MESSAGE_BULK_DELETE' }).then(audit => audit.entries.first());
+        const auditLog = await msg.guild.fetchAuditLogs({ type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first());
         const executor = auditLog.executor;
 
         if (!msg.guild.me.permissions.has('EMBED_LINKS')) {
             return log.send(stripIndents`
             __**${msg.author.tag} | ${msg.member.displayName}** (${msg.author.id})__
-            **Deleted Message** | (${msg.id})
+            **Deleted Message** | ${msg.id}
             ${msg}
 
 
             in: ${msg.channel}
+
             *Deleted by: ${executor.tag} (${executor.id}) | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}*
+            
+            
             `, { split: true })
         }
 
@@ -110,14 +121,18 @@ export default class MessageLogger {
             author: {
                 name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**Deleted Message** | (' + msg.id + ')',
+            title: '**Deleted Message** | ' + msg.id,
             color: msg.member.displayHexColor,
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
             description: stripIndents`
             ${msg.content}
+
+
             *Deleted by ${executor.tag} (${executor.id})*
+
+
             `,
             footer: {
                 text: `#${(msg.channel as TextChannel).name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
