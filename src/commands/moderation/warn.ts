@@ -19,7 +19,6 @@ export default class WarnCommand extends Command {
                 ]
             },
             ratelimit: 3,
-            userPermissions: ['MANAGE_MESSAGES'],
             args: [
                 {
                     id: 'member',

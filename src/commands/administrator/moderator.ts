@@ -15,7 +15,6 @@ export default class ModCommand extends Command {
             ratelimit: 2,
             channel: 'guild',
             category: 'Administrator',
-            userPermissions: ['ADMINISTRATOR', 'BAN_MEMBERS', 'KICK_MEMBERS', 'MANAGE_GUILD'],
             args: [
                 {
                     id: 'method',
@@ -68,16 +67,13 @@ export default class ModCommand extends Command {
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
+        //@ts-ignore
+        if (moderators.length === 0) this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
         owners.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }
         })
-
-        //@ts-ignore
-        const moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', []);
-        //@ts-ignore
-        if (moderators.length === 0) this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
 
         const clearID: string = rolemember.id;
 
@@ -147,9 +143,10 @@ export default class ModCommand extends Command {
                 return message.util!.send(rmConf);
             default:
                 const prefix = await (this.handler.prefix as PrefixSupplier)(message);
+                var rnd = Math.floor(Math.random() * prefix.length) - 1;
                 return message.util!.reply(stripIndents`
                     that method doesn't exist on \`mod\`;
-                    Try \`${prefix}help mod\` for help.`);
+                    Try \`${prefix[rnd]}help mod\` for help.`);
         }
     }
 }

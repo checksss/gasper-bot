@@ -55,10 +55,19 @@ export default class ServerInfoCommand extends Command {
         let dateDay: string = guilddate.format('DD');
 
         let guildFeatures: string[] = message.guild!.features.map((f, k): string => `• ${GUILD_FEATURES[f]}\n`)
-        let guildBanner: string = message.guild.bannerURL({ format: 'png', size: 4096 });
+        let guildBanner: string = message.guild.features.filter((f) => GUILD_FEATURES[f] === 'Banner').length > 0 ? message.guild.bannerURL({ format: 'png', size: 4096 }) : '';
         let guildSplash: string = message.guild.features.filter((f) => GUILD_FEATURES[f] === 'Splash Invite').length > 0 ? message.guild.splashURL({ format: "png", size: 4096 }) : '';
-        let vanityURL: string = message.guild!.vanityURLCode ? `https://discord.gg/${message.guild.vanityURLCode}` : `${message.guild.fetchVanityCode().catch(e => { if (e) return vanityURL = '' })}`;
+        let vanityURL: string = message.guild.features.filter((f) => GUILD_FEATURES[f] === 'Vanity URL').length > 0 ? `https://discord.gg/${message.guild.vanityURLCode}/` : '';
 
+        const on: string = '🟢';
+        const off: string = '⚪';
+        const dnd: string = '🔴';
+        const afk: string = '🟡';
+
+        var onMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'online' && !m.user.bot).size;
+        var offMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'offline' && !m.user.bot).size;
+        var dndMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'dnd' && !m.user.bot).size;
+        var afkMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'idle' && !m.user.bot).size;
 
         const guildOwner = await message.guild!.members.fetch(message.guild!.ownerID);
         const embed = new MessageEmbed()
@@ -119,9 +128,17 @@ export default class ServerInfoCommand extends Command {
                 • Created at: ${guilddate.format(`${parseInt(dateDay) === 1 ? `${dateDay}[st]` : `${parseInt(dateDay) === 2 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 3 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 21 ? `${dateDay}[st]` : `${parseInt(dateDay) === 22 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 23 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 31 ? `${dateDay}[st]` : `${dateDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}
                 • Verification Level: ${HUMAN_LEVELS[message.guild!.verificationLevel]}
             `)
-            .addField('<:empty:744513757962829845>', '<:empty:744513757962829845>', true)
-            .setImage(guildBanner !== '' ? guildBanner : '');
-        if (vanityURL !== '') embed.author.url = vanityURL;
+
+
+        let now: moment.Moment = moment.utc(Date.now());
+        let nowDay: string = now.format('DD');
+
+        embed.setFooter(`Members by Status: ${onMembers > 0 ? `${on} ${onMembers} | ` : ''}${afkMembers > 0 ? `${afk} ${afkMembers} | ` : ''}${dndMembers > 0 ? `${dnd} ${dndMembers} | ` : ''}${offMembers > 0 ? `${off} ${offMembers} | ` : ''}${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`)
+
+
+
+        if (guildBanner !== '') embed.setImage(guildBanner);
+        if (vanityURL !== '') embed.setAuthor(`${message.guild!.name}`, message.guild!.iconURL({ dynamic: true, format: "png" }), vanityURL);
 
         return message.util!.send(embed);
     }

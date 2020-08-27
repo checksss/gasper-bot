@@ -61,9 +61,9 @@ export default class BotClient extends AkairoClient {
 		argumentDefaults: {
 			prompt: {
 				modifyStart: (_, str): string =>
-					`${str}\n\nType \`cancel\` to cancel the command...`,
+					`${str}\n\n*Type \`cancel\` to cancel the command...*`,
 				modifyRetry: (_, str): string =>
-					`${str}\n\nType \`cancel\` to cancel the command...`,
+					`${str}\n\n*Type \`cancel\` to cancel the command...*`,
 				timeout: 'You took too long, the command has now been cancelled...',
 				ended:
 					'You exceeded the maximum amount of tries, this command has now been cancelled...',
@@ -85,8 +85,8 @@ export default class BotClient extends AkairoClient {
 	public constructor(config: BotOptions) {
 		super({
 			ownerID: owners,
-			shards: 'auto',
-			shardCount: 1,
+			// shards: 'auto',
+			// shardCount: 1,
 		});
 
 		//@ts-ignore

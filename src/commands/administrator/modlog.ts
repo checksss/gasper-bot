@@ -14,7 +14,6 @@ export default class ModLogCommand extends Command {
             },
             category: 'Administrator',
             ratelimit: 2,
-            userPermissions: ['ADMINISTRATOR', 'BAN_MEMBERS', 'KICK_MEMBERS', 'MANAGE_GUILD'],
             args: [
                 {
                     id: 'method',
@@ -97,11 +96,12 @@ export default class ModLogCommand extends Command {
             }
         }
 
-        const prefix: string | string[] = await (this.handler.prefix as PrefixSupplier)(message)
+        const prefix = await (this.handler.prefix as PrefixSupplier)(message);
+        var rnd = Math.floor(Math.random() * prefix.length) - 1;
         const checktype = await typecheck(logtype)
         if (checktype === false) return message.util!.send(stripIndents`
         That logtype doesn't exist on \`modlog\`;
-        Try \`${prefix}help modlog\` for help.`);
+        Try \`${prefix[rnd]}help modlog\` for help.`);
 
         //@ts-ignore
         var logchannel: string = await this.client.guildsettings.get(message.guild!, `config.${logtype}_logchannel`, '');

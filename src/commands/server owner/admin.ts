@@ -109,8 +109,7 @@ export default class AdminCommand extends Command {
                     //@ts-ignore
                     await this.client.guildsettings.set(message.guild!, 'config.administrators', administrators);
                 } catch (e) {
-                    this.client.users.cache.get(this.client.ownerID[0]).send(e);
-                    return message.util!.send('Something went wrong.\n' + e.stack);
+                    return message.util!.send('Something went wrong.\n' + e.stack).then(m => m.delete({ timeout: 5000 }));
                 }
 
                 return message.util!.send(addConf);
@@ -124,8 +123,7 @@ export default class AdminCommand extends Command {
                     //@ts-ignore
                     await this.client.guildsettings.set(message.guild!, 'config.administrators', newAdmins);
                 } catch (e) {
-                    this.client.users.cache.get(this.client.ownerID[0]).send(e);
-                    return message.util!.send('Something went wrong.\n' + e.stack);
+                    return message.util!.send('Something went wrong.\n' + e.stack).then(m => m.delete({ timeout: 5000 }));
                 }
                 return message.util!.send(rmConf);
             default:

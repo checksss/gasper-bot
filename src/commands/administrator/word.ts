@@ -12,7 +12,6 @@ export default class WordCommand extends Command {
 				usages: 'word <add/del> <value>',
 			},
 			channel: 'guild',
-			userPermissions: ['ADMINISTRATOR'],
 			clientPermissions: ['MANAGE_MESSAGES'],
 			ratelimit: 3,
 		});
