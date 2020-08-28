@@ -17,20 +17,21 @@ export default class MessageDeleteListener extends Listener {
         const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
         //@ts-ignore
         const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
-        const prefixarray: string[] = userprefixes.length > 0 ? userprefixes.concat(guildprefix) : [guildprefix];
+
+        let n: number = 0;
+
+        let prefixArr: string[] = userprefixes.concat(guildprefix);
+        for (const p in prefixArr) {
+            if (message.content.startsWith(p)) n++;
+        }
 
         if (message.author.bot || !message.guild) return;
 
-        prefixarray.forEach(pfx => {
-            if (message.content.startsWith(pfx))
-                return;
-        })
-
         //@ts-ignore
         const logchannel = this.client.guildsettings.get(message.guild, 'config.message_delete_logchannel', '');
-        const msglog = message.guild.channels.cache.get(logchannel) as TextChannel;
+        const msglog = this.client.channels.cache.get(logchannel) as TextChannel;
 
-        if (msglog && msglog != null && !message.content.startsWith(guildprefix) && !message.content.includes(guildprefix)) {
+        if (msglog && msglog != null && n === 0) {
             return MessageLogger.onDelete(message, msglog)
         }
     }

@@ -9,3 +9,4 @@ assets
 for_the_lurkers
 db.sqlite
 logs
+src/listeners/client/controller

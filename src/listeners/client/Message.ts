@@ -21,6 +21,13 @@ export default class MessageListener extends Listener {
 		//@ts-ignore
 		const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
 
+		let n: number = 0;
+
+		let prefixArr: string[] = userprefixes.concat(guildprefix);
+		for (const p in prefixArr) {
+			if (message.content.startsWith(p)) n++;
+		}
+
 		const answersArray: string[] = ['hey there!', 'you called me?', 'you mentioned me?', 'how can i help you?', 'what\'s up?', 'need help?', 'ok.', 'forgot my prefix?'];
 		var randomAnswers: number = Math.floor(Math.random() * answersArray.length);
 		var answer: string = answersArray[randomAnswers];
@@ -52,9 +59,9 @@ export default class MessageListener extends Listener {
 
 		//@ts-ignore
 		const logchannel = this.client.guildsettings.get(message.guild, 'config.message_logchannel', '');
-		const msglog = message.guild.channels.cache.get(logchannel) as TextChannel;
+		const msglog = this.client.channels.cache.get(logchannel) as TextChannel;
 
-		if (msglog && msglog != null && !message.content.startsWith(guildprefix) && !message.content.includes(guildprefix)) {
+		if (msglog && msglog != null && n === 0) {
 			MessageLogger.onSend(message, msglog)
 		}
 

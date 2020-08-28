@@ -26,7 +26,7 @@ export default class MessageDeleteListener extends Listener {
 
         //@ts-ignore
         const logchannel = this.client.guildsettings.get(guild, 'config.message_delete_logchannel', '');
-        const msglog = guild.channels.cache.get(logchannel) as TextChannel;
+        const msglog = this.client.channels.cache.get(logchannel) as TextChannel;
 
         if (msglog && msglog != null) {
             return MessageLogger.onBulkDelete(guild, amount, msglog, channel)

@@ -87,7 +87,7 @@ export default class ReadyListener extends Listener {
 			`Copyright (C) 2020 Florian Meyer\n\n` +
 			`Contact:\n` +
 			`datflow@gasper.fun\n\n` +
-			`<https://gasper.fun>\n\n` +
+			`<https://discord.gasper.fun>\n\n` +
 			`This program is free software: you can redistribute it and/or modify\n` +
 			`it under the terms of the GNU Affero General Public License as published\n` +
 			`by the Free Software Foundation, either version 3 of the License, or\n` +

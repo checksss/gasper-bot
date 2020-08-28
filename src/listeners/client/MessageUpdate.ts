@@ -17,19 +17,21 @@ export default class MessageUpdateListener extends Listener {
         //@ts-ignore
         const userprefixes: string[] = this.client.usersettings.get(newMessage.author, 'config.prefixes', [defaultPrefix]);
         //@ts-ignore
-        const guildprefix: string = this.client.guildsettings.get(newMessage.guild, 'config.prefix', defaultPrefix);
-        const prefixarray: string[] = userprefixes.length > 0 ? userprefixes.concat(guildprefix) : [guildprefix];
+        const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
+
+        let n: number = 0;
+
+        let prefixArr: string[] = userprefixes.concat(guildprefix);
+        for (const p in prefixArr) {
+            if (oldMessage.content.startsWith(p)) n++;
+            if (newMessage.content.startsWith(p)) n++;
+        }
 
         const answersArray: string[] = ['hey there!', 'you called me?', 'you mentioned me?', 'how can i help you?', 'what\'s up?', 'need help?', 'ok.', 'forgot my prefix?'];
         var randomAnswers: number = Math.floor(Math.random() * answersArray.length);
         var answer: string = answersArray[randomAnswers];
 
         if (newMessage.author.bot || !newMessage.guild) return;
-
-        prefixarray.forEach(pfx => {
-            if (newMessage.content.startsWith(pfx))
-                return;
-        })
 
         if (newMessage.mentions.users.first() === this.client.user) {
 
@@ -48,9 +50,9 @@ export default class MessageUpdateListener extends Listener {
         }
         //@ts-ignore
         const logchannel = this.client.guildsettings.get(newMessage.guild, 'config.message_edit_logchannel', '');
-        const msglog = newMessage.guild.channels.cache.get(logchannel) as TextChannel;
+        const msglog = this.client.channels.cache.get(logchannel) as TextChannel;
 
-        if (msglog && msglog != null && !newMessage.content.startsWith(guildprefix) && !oldMessage.content.startsWith(guildprefix) && !oldMessage.content.includes(guildprefix) && !newMessage.content.includes(guildprefix)) {
+        if (msglog && msglog != null && n === 0) {
             MessageLogger.onEdit(oldMessage, newMessage, msglog)
         }
 

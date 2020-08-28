@@ -213,7 +213,12 @@ export default class SetRoleCommand extends Command {
                                     'MOVE_MEMBERS',
                                     'USE_VAD',
                                     'VIEW_CHANNEL',
-                                    'SPEAK'
+                                    'SPEAK',
+                                    'READ_MESSAGE_HISTORY',
+                                    'MENTION_EVERYONE',
+                                    'USE_EXTERNAL_EMOJIS',
+                                    'MANAGE_CHANNELS',
+                                    'MANAGE_ROLES'
                                 ]
                             }
                         ])
@@ -222,8 +227,8 @@ export default class SetRoleCommand extends Command {
 
                 if (option === 'moderators') {
                     moderators.push(newRole.id);
-                    if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
-                        await newRole.setPermissions('MANAGE_MESSAGES', `Created Mod-Role by ${message.author.tag}.`)
+                    if (message.guild.members.cache.get(this.client.user.id).permissions.has('MANAGE_MESSAGES')) {
+                        await newRole.setPermissions(['MANAGE_MESSAGES'], `Created Mod-Role by ${message.author.tag}.`)
                     }
                     await msg.edit(`which color the role should have?\n*Please provide a **hex-color**. You can pick one from there: <https://www.colorcodehex.com/html-color-picker.html>*`);
                     const colResponses = await msg.channel.awaitMessages((r: Message) => r.author!.id === authorMember!.id, { max: 1, time: 30000 });
@@ -259,8 +264,8 @@ export default class SetRoleCommand extends Command {
                         rolecolor = colResponse.content;
                     }
                     await newRole.setColor(rolecolor);
-                    if (message.guild.me.hasPermission('ADMINISTRATOR')) {
-                        await newRole.setPermissions('ADMINISTRATOR', `Created Admin-Role by ${message.author.tag}.`);
+                    if (message.guild.members.cache.get(this.client.user.id).permissions.has('ADMINISTRATOR')) {
+                        await newRole.setPermissions(['ADMINISTRATOR'], `Created Admin-Role by ${message.author.tag}.`);
                     }
                     //@ts-ignore
                     await this.client.guildsettings.set(message.guild!, `config.${option}`, administrators);
@@ -300,7 +305,7 @@ export default class SetRoleCommand extends Command {
                     data: {
                         name: rolename
                     },
-                    reason: `Mute-Role | Created by ${message.author.tag}`
+                    reason: `${option}-Role | Created by ${message.author.tag}`
                 })
                 if (rolecolor !== '') {
                     await newRole.setColor(rolecolor);
@@ -347,8 +352,32 @@ export default class SetRoleCommand extends Command {
                 } catch (e) {
                     return message.util!.reply('something went wrong.\n' + e.stack).then(m => m.delete({ timeout: 5000 }));
                 }
-            }
+            };
+
             await role.delete(`Deleted by ${message.author.tag}`);
+            //@ts-ignore
+            await this.client.guildsettings.delete(message.guild!, `config.${option}-log`);
+            let newMods: string[] = [];
+            moderators.forEach((m) => {
+                if (m !== role.id) {
+                    newMods.push(m);
+                }
+            })
+            let newAdmins: string[] = [];
+            administrators.forEach((a) => {
+                if (a !== role.id) {
+                    newAdmins.push(a);
+                }
+            })
+            if (option === 'moderators') {
+                //@ts-ignore
+                await this.client.guildsettings.set(message.guild!, `config.moderators`, newMods);
+            }
+            if (option === 'administrators') {
+                //@ts-ignore
+                await this.client.guildsettings.set(message.guild!, `config.administrators`, newAdmins);
+            }
+
             return message.util!.reply(`successfully deleted role \`${role.name}\`.`).then(m => m.delete({ timeout: 5000 }));
         } else {
             if (option === 'moderators') {
