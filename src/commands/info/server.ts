@@ -69,6 +69,9 @@ export default class ServerInfoCommand extends Command {
         var dndMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'dnd' && !m.user.bot).size;
         var afkMembers: number = message.guild.members.cache.filter((m) => m.user.presence.status === 'idle' && !m.user.bot).size;
 
+        let adminRoleString: string = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).sort((r1, r2) => r2.comparePositionTo(r1)).map((roles): string => `\n<:empty:744513757962829845><:empty:744513757962829845>• <@&${roles.id}>`).join(' ')
+        let adminRoleSize: number = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).size;
+
         const guildOwner = await message.guild!.members.fetch(message.guild!.ownerID);
         const embed = new MessageEmbed()
             .setColor(guildOwner.displayColor)
@@ -123,7 +126,7 @@ export default class ServerInfoCommand extends Command {
                 '⇒ Other',
                 stripIndents`
                 • Roles: ${message.guild!.roles.cache.size}
-                ${message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).size > 0 ? `<:empty:744513757962829845>• Admin Roles:${message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `\n<:empty:744513757962829845><:empty:744513757962829845>• <@&${roles.id}>`).join(' ')}` : ''}
+                <:empty:744513757962829845>• Admin Roles: ${adminRoleSize > 0 && adminRoleString.length < 512 ? `(${adminRoleSize})${adminRoleString}` : `${adminRoleSize}`}
                 • Region: ${message.guild!.region}
                 • Created at: ${guilddate.format(`${parseInt(dateDay) === 1 ? `${dateDay}[st]` : `${parseInt(dateDay) === 2 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 3 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 21 ? `${dateDay}[st]` : `${parseInt(dateDay) === 22 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 23 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 31 ? `${dateDay}[st]` : `${dateDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}
                 • Verification Level: ${HUMAN_LEVELS[message.guild!.verificationLevel]}

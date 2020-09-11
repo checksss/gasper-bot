@@ -76,7 +76,7 @@ export default class UserInfoCommand extends Command {
                 '⇒ Member Details',
                 stripIndents`
                 ${member.nickname == undefined ? '• No nickname' : ` • Nickname: ${member.nickname}`}
-				• Roles ${roleString.length < 1024 ? `(${roleSize}): ${roleString}` : `: ${roleSize}`}
+				• Roles ${roleString.length < 512 ? `(${roleSize}): ${roleString}` : `: ${roleSize}`}
                 • Joined at: ${memberdate.format(`${parseInt(mDateDay) === 1 ? `${mDateDay}[st]` : `${parseInt(mDateDay) === 2 ? `${mDateDay}[nd]` : `${parseInt(mDateDay) === 3 ? `${mDateDay}[rd]` : `${parseInt(mDateDay) === 21 ? `${mDateDay}[st]` : `${parseInt(mDateDay) === 22 ? `${mDateDay}[nd]` : `${parseInt(mDateDay) === 23 ? `${mDateDay}[rd]` : `${parseInt(mDateDay) === 31 ? `${mDateDay}[st]` : `${mDateDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}
                 ${member.guild.owner == member ? '• Server Owner' : ''}
             `)
