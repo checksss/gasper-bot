@@ -66,6 +66,7 @@ export default class UserInfoCommand extends Command {
 
         let memberdate: moment.Moment = moment.utc(member.joinedAt);
         let mDateDay: string = memberdate.format('DD');
+
         let roleString: string = member.roles.cache.filter((r) => r.id !== message.guild.id).sort((r1, r2) => r2.comparePositionTo(r1)).map((roles): string => `\n<:empty:744513757962829845><@&${roles.id}>`).join(' ');
         let roleSize: number = member.roles.cache.filter((r) => r.id !== message.guild.id).size;
 
