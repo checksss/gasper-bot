@@ -126,7 +126,7 @@ export default class ServerInfoCommand extends Command {
                 '⇒ Other',
                 stripIndents`
                 • Roles: ${message.guild!.roles.cache.size}
-                <:empty:744513757962829845>• Admin Roles: ${adminRoleSize > 0 && adminRoleString.length < 512 ? `(${adminRoleSize})${adminRoleString}` : `${adminRoleSize}`}
+                <:empty:744513757962829845>• Admin Roles: ${adminRoleSize > 0 && adminRoleString.length < 768 ? `(${adminRoleSize})${adminRoleString}` : `${adminRoleSize}`}
                 • Region: ${message.guild!.region}
                 • Created at: ${guilddate.format(`${parseInt(dateDay) === 1 ? `${dateDay}[st]` : `${parseInt(dateDay) === 2 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 3 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 21 ? `${dateDay}[st]` : `${parseInt(dateDay) === 22 ? `${dateDay}[nd]` : `${parseInt(dateDay) === 23 ? `${dateDay}[rd]` : `${parseInt(dateDay) === 31 ? `${dateDay}[st]` : `${dateDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}
                 • Verification Level: ${HUMAN_LEVELS[message.guild!.verificationLevel]}
