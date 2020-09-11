@@ -66,6 +66,8 @@ export default class UserInfoCommand extends Command {
 
         let memberdate: moment.Moment = moment.utc(member.joinedAt);
         let mDateDay: string = memberdate.format('DD');
+        let roleString: string = member.roles.cache.filter((r) => r.id !== message.guild.id).sort((r1, r2) => r2.comparePositionTo(r1)).map((roles): string => `\n<:empty:744513757962829845><@&${roles.id}>`).join(' ');
+        let roleSize: number = member.roles.cache.filter((r) => r.id !== message.guild.id).size;
 
         const embed = new MessageEmbed()
             .setColor(member.displayColor)
@@ -74,7 +76,7 @@ export default class UserInfoCommand extends Command {
                 '⇒ Member Details',
                 stripIndents`
                 ${member.nickname == undefined ? '• No nickname' : ` • Nickname: ${member.nickname}`}
-				• Roles (${member.roles.cache.filter((r) => r.id !== message.guild.id).size}): ${member.roles.cache.filter((r) => r.id !== message.guild.id).map((roles): string => `\n<:empty:744513757962829845><@&${roles.id}>`).join(' ')}
+				• Roles ${roleString.length < 1024 ? `(${roleSize}): ${roleString}` : `: ${roleSize}`}
                 • Joined at: ${memberdate.format(`${parseInt(mDateDay) === 1 ? `${mDateDay}[st]` : `${parseInt(mDateDay) === 2 ? `${mDateDay}[nd]` : `${parseInt(mDateDay) === 3 ? `${mDateDay}[rd]` : `${parseInt(mDateDay) === 21 ? `${mDateDay}[st]` : `${parseInt(mDateDay) === 22 ? `${mDateDay}[nd]` : `${parseInt(mDateDay) === 23 ? `${mDateDay}[rd]` : `${parseInt(mDateDay) === 31 ? `${mDateDay}[st]` : `${mDateDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}
                 ${member.guild.owner == member ? '• Server Owner' : ''}
             `)

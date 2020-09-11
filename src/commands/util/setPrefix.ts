@@ -10,7 +10,14 @@ export default class SetPrefixCommand extends Command {
 			aliases: ['setprefix', 'newprefix', 'pcustom', 'prefix', 'pfx'],
 			category: 'Util',
 			description: {
-				content: "Add custom prefixes for global use\nOptionally, server admins can change server's prefix\nValid methods are:\n- `delete`/`remove`/`del`/`rm` to remove a prefix from your individual prefix-list\n- `server`/`guild`/`local`/`community` to change the server's prefix [Admin-Only]\n- `user`/`me`/`member`/`custom`/`private`/`global` to add a prefix to your prefix-list [DEFAULT]",
+				content: stripIndents`
+				Add custom prefixes for global use.
+				Optionally, server admins can change server's prefix.
+				Valid methods are:
+				- \`delete\`/\`remove\`/\`del\`/\`rm\` to remove a prefix from your individual prefix-list
+				- \`server\`/\`guild\`/\`local\`/\`community\` to change the server's prefix [Admin-Only]
+				- \`user\`/\`me\`/\`member\`/\`custom\`/\`private\`/\`global\` to add a prefix to your prefix-list [DEFAULT]
+				Don't forget the \`-o\` identifier to provide a method!`,
 				examples: ['!', '? -o server'],
 				usages: ['<new prefix>', '<new prefix> -o <method>']
 			},

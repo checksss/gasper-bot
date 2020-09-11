@@ -12,7 +12,7 @@ export default class HelpCommand extends Command {
                 content: 'Displays a list of available command, or detailed information for a specific command.',
                 usage: '[command]'
             },
-            category: 'Public',
+            category: 'Util',
             clientPermissions: ['EMBED_LINKS'],
             ratelimit: 2,
             args: [

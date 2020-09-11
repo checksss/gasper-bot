@@ -18,7 +18,7 @@ export default class QuoteCommand extends Command {
   public constructor() {
     super('quote', {
       aliases: ['quote', 'qt'],
-      category: 'Public',
+      category: 'Util',
       description: {
         content: 'Better than the Discord-Quotes.',
         examples: ['https://discord.com/channels/<server-id>/<channel-id>/message-id> answer'],

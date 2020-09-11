@@ -17,7 +17,7 @@ export default class MessageUpdateListener extends Listener {
         //@ts-ignore
         const userprefixes: string[] = this.client.usersettings.get(newMessage.author, 'config.prefixes', [defaultPrefix]);
         //@ts-ignore
-        const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
+        const guildprefix: string = this.client.guildsettings.get(newMessage.guild, 'config.prefix', defaultPrefix);
 
         let n: number = 0;
 

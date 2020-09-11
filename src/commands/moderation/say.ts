@@ -8,7 +8,8 @@ export default class SayCommand extends Command {
             aliases: ['say', 'echo', 'print'],
             description: {
                 content: 'Spread your word through me!',
-                usage: ['Wassup?!', '#general Hi!']
+                usage: ['[channel] <text>'],
+                examples: ['Hey!', '#general Yo!']
             },
             category: 'Moderation',
             clientPermissions: ['MANAGE_MESSAGES'],
