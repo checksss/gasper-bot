@@ -1,8 +1,9 @@
 import { Provider } from 'discord-akairo';
 import { User } from 'discord.js';
-import { Repository, InsertResult, DeleteResult } from 'typeorm';
+import { Repository, InsertResult, DeleteResult, UpdateResult } from 'typeorm';
 import { UserSettings } from '../models/UserSettings';
 import * as _ from 'dot-prop';
+import { stripIndents } from 'common-tags';
 
 export default class UserSettingsProvider extends Provider {
     public repo: Repository<any>;
@@ -36,11 +37,11 @@ export default class UserSettingsProvider extends Provider {
         return this.items.get(id);
     }
 
-    public set(
+    public async set(
         user: string | User,
         key: string,
         value: any
-    ): Promise<InsertResult> {
+    ): Promise<InsertResult | UpdateResult> {
         const id = (this.constructor as typeof UserSettingsProvider).getUserID(user);
         const data = this.items.get(id) || {};
         _.set(data, key, value);
@@ -51,12 +52,24 @@ export default class UserSettingsProvider extends Provider {
             .insert()
             .into(UserSettings)
             .values({ user: id, settings: JSON.stringify(data) })
-            .onConflict('("user") DO UPDATE SET "settings" = :settings')
+            .onConflict(stripIndents`UPDATE \`user_settings\`
+			SET \`settings\` = '${JSON.stringify(data)}'
+			WHERE \`user_settings\`.\`user\` = '${id}';`)
             .setParameter('settings', JSON.stringify(data))
-            .execute();
+            .execute()
+            .catch(e => {
+                if (e) {
+                    return this.repo
+                        .createQueryBuilder()
+                        .update(UserSettings)
+                        .set({ settings: () => `'${JSON.stringify(data)}'` })
+                        .where("user = :user", { user: id })
+                        .execute();
+                }
+            });
     }
 
-    public delete(user: string | User, key: string): Promise<InsertResult> {
+    public async delete(user: string | User, key: string): Promise<InsertResult | UpdateResult> {
         const id = (this.constructor as typeof UserSettingsProvider).getUserID(user);
         const data = this.items.get(id) || {};
         _.delete(data, key);
@@ -66,9 +79,21 @@ export default class UserSettingsProvider extends Provider {
             .insert()
             .into(UserSettings)
             .values({ user: id, settings: JSON.stringify(data) })
-            .onConflict('("user") DO UPDATE SET "settings" = :settings')
+            .onConflict(stripIndents`UPDATE \`user_settings\`
+			SET \`settings\` = '${JSON.stringify(data)}'
+			WHERE \`user_settings\`.\`user\` = '${id}';`)
             .setParameter('settings', JSON.stringify(data))
-            .execute();
+            .execute()
+            .catch(e => {
+                if (e) {
+                    return this.repo
+                        .createQueryBuilder()
+                        .update(UserSettings)
+                        .set({ settings: () => `'${JSON.stringify(data)}'` })
+                        .where("user = :user", { user: id })
+                        .execute();
+                }
+            });
     }
 
     public clear(user: string | User): Promise<DeleteResult> {

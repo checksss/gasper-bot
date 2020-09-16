@@ -42,7 +42,7 @@ export default class MessageListener extends Listener {
 				//@ts-ignore
 				guildprefix +
 				'`' +
-				`${userprefixes.length > 1 ? `\n\n*your global Prefixes are:* ${userprefixes.filter((p) => p !== defaultPrefix).map((pfx) => `\n\`${pfx}\``).join(' ')}` : ''}`
+				`${userprefixes.length > 1 ? `\n\n*your global Prefixes are:\ng!* ${userprefixes.filter((p) => p !== defaultPrefix).map((pfx) => `\n\`${pfx}\``).join(' ')}` : ''}`
 			).then(sent => {
 				if (sent.deletable && !sent.deleted) {
 					sent.delete({ timeout: 5000, reason: 'keeping chat clean!' }).catch(e => { if (e) console.log(e.stack) });

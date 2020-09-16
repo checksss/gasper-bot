@@ -1,8 +1,9 @@
 import { Provider } from 'discord-akairo';
 import { Guild } from 'discord.js';
-import { Repository, InsertResult, DeleteResult } from 'typeorm';
+import { Repository, InsertResult, DeleteResult, UpdateResult } from 'typeorm';
 import { GuildSettings } from '../models/GuildSettings';
 import * as _ from 'dot-prop';
+import { stripIndents } from 'common-tags';
 
 export default class GuildSettingsProvider extends Provider {
 	public repo: Repository<any>;
@@ -36,11 +37,11 @@ export default class GuildSettingsProvider extends Provider {
 		return this.items.get(id);
 	}
 
-	public set(
+	public async set(
 		guild: string | Guild,
 		key: string,
 		value: any
-	): Promise<InsertResult> {
+	): Promise<InsertResult | UpdateResult> {
 		const id = (this.constructor as typeof GuildSettingsProvider).getGuildID(guild);
 		const data = this.items.get(id) || {};
 		_.set(data, key, value);
@@ -51,12 +52,24 @@ export default class GuildSettingsProvider extends Provider {
 			.insert()
 			.into(GuildSettings)
 			.values({ guild: id, settings: JSON.stringify(data) })
-			.onConflict('("guild") DO UPDATE SET "settings" = :settings')
+			.onConflict(stripIndents`UPDATE \`guild_settings\`
+			SET \`settings\` = '${JSON.stringify(data)}'
+			WHERE \`guild_settings\`.\`guild\` = '${id}';`)
 			.setParameter('settings', JSON.stringify(data))
-			.execute();
+			.execute()
+			.catch(e => {
+				if (e) {
+					return this.repo
+						.createQueryBuilder()
+						.update(GuildSettings)
+						.set({ settings: () => `'${JSON.stringify(data)}'` })
+						.where("guild = :guild", { guild: id })
+						.execute();
+				}
+			});
 	}
 
-	public delete(guild: string | Guild, key: string): Promise<InsertResult> {
+	public async delete(guild: string | Guild, key: string): Promise<InsertResult | UpdateResult> {
 		const id = (this.constructor as typeof GuildSettingsProvider).getGuildID(guild);
 		const data = this.items.get(id) || {};
 		_.delete(data, key);
@@ -66,9 +79,23 @@ export default class GuildSettingsProvider extends Provider {
 			.insert()
 			.into(GuildSettings)
 			.values({ guild: id, settings: JSON.stringify(data) })
-			.onConflict('("guild") DO UPDATE SET "settings" = :settings')
+			.onConflict(stripIndents`UPDATE \`guild_settings\`
+			SET \`settings\` = '${JSON.stringify(data)}'
+			WHERE \`guild_settings\`.\`guild\` = '${id}';`)
 			.setParameter('settings', JSON.stringify(data))
-			.execute();
+			.execute()
+			.catch(e => {
+				if (e) {
+					return this.repo
+						.createQueryBuilder()
+						.update(GuildSettings)
+						.set({ settings: () => `'${JSON.stringify(data)}'` })
+						.where("guild = :guild", { guild: id })
+						.execute();
+				}
+			});
+
+
 	}
 
 	public clear(guild: string | Guild): Promise<DeleteResult> {

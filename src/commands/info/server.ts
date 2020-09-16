@@ -143,6 +143,6 @@ export default class ServerInfoCommand extends Command {
         if (guildBanner !== '') embed.setImage(guildBanner);
         if (vanityURL !== '') embed.setAuthor(`${message.guild!.name}`, message.guild!.iconURL({ dynamic: true, format: "png" }), vanityURL);
 
-        return message.util!.send(embed);
+        return message.util!.send(embed).catch(e => { if (e) return message.util!.send('something went wrong') });
     }
 }

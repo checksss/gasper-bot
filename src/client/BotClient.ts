@@ -48,9 +48,9 @@ export default class BotClient extends AkairoClient {
 			let guildprefix: string = this.guildsettings.get(msg.guild, 'config.prefix', defaultPrefix);
 			let userprefixes: string[] = this.usersettings.get(msg.author, 'config.prefixes', [defaultPrefix]);
 			if (msg.guild) {
-				return userprefixes.concat(guildprefix);
+				return userprefixes.concat(guildprefix).concat(defaultPrefix);
 			} else {
-				return userprefixes;
+				return userprefixes.concat(defaultPrefix);
 			}
 		},
 		ignorePermissions: owners,

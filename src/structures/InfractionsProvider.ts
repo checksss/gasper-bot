@@ -1,8 +1,9 @@
 import { Provider } from 'discord-akairo';
 import { User } from 'discord.js';
-import { Repository, InsertResult, DeleteResult } from 'typeorm';
+import { Repository, InsertResult, DeleteResult, UpdateResult } from 'typeorm';
 import { Infractions } from '../models/Infractions';
 import * as _ from 'dot-prop';
+import { stripIndents } from 'common-tags';
 
 export default class InfractionsProvider extends Provider {
     public repo: Repository<any>;
@@ -19,7 +20,7 @@ export default class InfractionsProvider extends Provider {
         }
     }
 
-        public get<T>(
+    public get<T>(
         user: string | User,
         key: string,
         defaultValue: any
@@ -36,11 +37,11 @@ export default class InfractionsProvider extends Provider {
         return this.items.get(id);
     }
 
-    public set(
+    public async set(
         user: string | User,
         key: string,
         value: any
-    ): Promise<InsertResult> {
+    ): Promise<InsertResult | UpdateResult> {
         const id = (this.constructor as typeof InfractionsProvider).getUserID(user);
         const data = this.items.get(id) || {};
         _.set(data, key, value);
@@ -51,12 +52,24 @@ export default class InfractionsProvider extends Provider {
             .insert()
             .into(Infractions)
             .values({ user: id, infractions: JSON.stringify(data) })
-            .onConflict('("user") DO UPDATE SET "infractions" = :infractions')
+            .onConflict(stripIndents`UPDATE \`infractions\`
+			SET \`infractions\` = '${JSON.stringify(data)}'
+			WHERE \`infractions\`.\`user\` = '${id}';`)
             .setParameter('infractions', JSON.stringify(data))
-            .execute();
+            .execute()
+            .catch(e => {
+                if (e) {
+                    return this.repo
+                        .createQueryBuilder()
+                        .update(Infractions)
+                        .set({ infractions: () => `'${JSON.stringify(data)}'` })
+                        .where("user = :user", { user: id })
+                        .execute();
+                }
+            });
     }
 
-    public delete(user: string | User, key: string): Promise<InsertResult> {
+    public async delete(user: string | User, key: string): Promise<InsertResult | UpdateResult> {
         const id = (this.constructor as typeof InfractionsProvider).getUserID(user);
         const data = this.items.get(id) || {};
         _.delete(data, key);
@@ -66,9 +79,21 @@ export default class InfractionsProvider extends Provider {
             .insert()
             .into(Infractions)
             .values({ user: id, infractions: JSON.stringify(data) })
-            .onConflict('("user") DO UPDATE SET "infractions" = :infractions')
+            .onConflict(stripIndents`UPDATE \`infractions\`
+			SET \`infractions\` = '${JSON.stringify(data)}'
+			WHERE \`infractions\`.\`user\` = '${id}';`)
             .setParameter('infractions', JSON.stringify(data))
-            .execute();
+            .execute()
+            .catch(e => {
+                if (e) {
+                    return this.repo
+                        .createQueryBuilder()
+                        .update(Infractions)
+                        .set({ infractions: () => `'${JSON.stringify(data)}'` })
+                        .where("user = :user", { user: id })
+                        .execute();
+                }
+            });
     }
 
     public clear(user: string | User): Promise<DeleteResult> {
