@@ -1,19 +1,30 @@
 import { Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, User, Guild, NewsChannel } from 'discord.js';
+import {
+    GuildMember,
+    Message,
+    MessageEmbed,
+    TextChannel,
+    User,
+    Guild,
+    NewsChannel,
+    Webhook
+} from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import ms from 'ms';
 import { Channel } from 'discord.js';
 import { owners } from '../../config';
+import { Argument } from 'discord-akairo';
+import { AkairoClient } from 'discord-akairo';
 
 export default class SoftbanCommand extends Command {
     public constructor() {
         super('softban', {
             aliases: ['softban'],
             description: {
-                content: 'Bans a member temporary.\nYou can specifiy the time the user should be banned with\n`t=`, `time=` (default is 0ms)\nand the amout of days to delete messages with\n`d=`, `days=`, `delete=`, `remove=`, `del=`, `rm=` (default is 7 days, max 14)',
+                content: 'Bans a member temporary.\nYou can specifiy the time the user should be banned with\n`t=`, `time=` (default/minimum is 10s)\nand the amout of days to delete messages with\n`d=`, `days=`, `delete=`, `remove=`, `del=`, `rm=` (default is 7 days, max 14)',
                 usage: '<member> [days] [time] [reason]',
-                examples: ['@overtroll t=5m', '@soupguy t=3d annoying', '@spambot#1337 t=5d d=7 spamming'],
+                examples: ['@overtroll#1234 t=5m', 'soupguy t=3d annoying', '@spambot#1337 t=5d d=7 spamming'],
             },
             category: 'Moderation',
             clientPermissions: ['BAN_MEMBERS', 'EMBED_LINKS'],
@@ -29,10 +40,17 @@ export default class SoftbanCommand extends Command {
                 },
                 {
                     id: 'time',
-                    type: 'string',
+                    type: Argument.union('string', async (_, phrase) => {
+                        if (ms(phrase) < 10000) {
+                            await _.reply('you provided an invalid time value.\n*I\'ll use default **(10s)***.')
+                            return null;
+                        } else {
+                            return phrase;
+                        }
+                    }),
                     match: 'option',
                     flag: ['time=', 't='],
-                    default: '0s'
+                    default: '10s'
                 },
                 {
                     id: 'days',
@@ -80,7 +98,7 @@ export default class SoftbanCommand extends Command {
             }
         })
 
-        const clientMember = await message.guild!.me!;
+        const clientMember = message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
         const isMember = message.guild.members.cache.has(user.id) ? true : false;
@@ -149,7 +167,7 @@ export default class SoftbanCommand extends Command {
 
         //@ts-ignore
         const modLog = await this.client.guildsettings.get(message.guild!, 'config.ban_logchannel', '');
-        const logchannel = await message.guild.channels.cache.get(modLog);
+        const logchannel = message.guild.channels.cache.get(modLog);
 
         if (message.guild.channels.cache.has(modLog)) {
             const embed = new MessageEmbed({
@@ -161,6 +179,7 @@ export default class SoftbanCommand extends Command {
                 description: stripIndents`
                 **Action**: Softban/Tempban
                 **Reason:** ${reason ? reason : 'No reason'}
+                **Duration:** ${ms(ms(time))}
                 **Messages deleted:** ${days > 0 ? `last ${days} ${days > 1 ? 'days' : 'day'}` : 'No messages deleted'}
             `,
                 footer: {
@@ -168,7 +187,7 @@ export default class SoftbanCommand extends Command {
                 }
             })
 
-            await (logchannel as TextChannel).send(embed);
+            await sendWebhook(logchannel, message, embed, this.client);
         }
 
         message.channel.messages.fetch({ limit: 20 })
@@ -177,25 +196,45 @@ export default class SoftbanCommand extends Command {
                 (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
-        const unban = async function (user: User, guild: Guild, logchannel: Channel) {
-            await guild.members.unban(user, `Tempban over after ${ms(ms(time))}`).catch((e) => {
-                return message.util!.reply(`Ooops! Something went wrong:\n\`\`\`${e.stack}\`\`\`.`);
-            });
-            if (message.guild.channels.cache.has(modLog)) {
-                const embed = new MessageEmbed()
-                    .setColor(clientMember.displayColor)
-                    .setAuthor(`${user.tag} (${user.id})`, user.displayAvatarURL({ format: 'png', dynamic: true }))
-                    .setDescription(stripIndents`
-                        **Action**: Unban (Softban/Tempban)
-                        **Reason:** ${reason ? `${reason} | Tempban over after ${ms(ms(time))}` : `No reason | Tempban over after ${ms(ms(time))}`}
-                    `)
-                    .setFooter(`User Unbanned by ${this.client.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-                return await (logchannel as TextChannel).send(embed);
-            }
-        }
+
 
         await msg.edit(`Successfully banned **${user.tag}** temporary for ${ms(ms(time))}`);
+
+        //@ts-ignore
+        let sbts: string[] = await this.client.infractions.get(user!, `softbans.${message.guild.id}.timestamp`, []);
+        //@ts-ignore
+        let sbd: string[] = await this.client.infractions.get(user!, `softbans.${message.guild.id}.duration`, []);
+        //@ts-ignore
+        let sbr: string[] = await this.client.infractions.get(user!, `softbans.${message.guild.id}.reason`, []);
+
+        sbts.push(`${Date.now()}`);
+        sbd.push(`${ms(time)}`);
+        sbr.push(`${reason}`);
+
+        //@ts-ignore
+        this.client.infractions.set(user!, `softbans.${message.guild.id}.timestamp`, sbts);
+        //@ts-ignore
+        this.client.infractions.set(user!, `softbans.${message.guild.id}.duration`, sbd);
+        //@ts-ignore
+        this.client.infractions.set(user!, `softbans.${message.guild.id}.reason`, sbr);
+
         return await msg.delete({ timeout: 5000, reason: 'Keeping chat clean' });
     }
+}
+
+async function sendWebhook(logchannel: Channel, message: Message, embed: MessageEmbed, client: AkairoClient) {
+    let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${client.user.username.toLowerCase()}-ban-log`).first();
+    if (!webhook) {
+        webhook = await (logchannel as TextChannel).createWebhook(`${client.user.username.toLowerCase()}-ban-log`, {
+            avatar: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+            reason: 'Logging bans enabled in this channel.'
+        })
+    }
+
+    await webhook.send({
+        username: message.guild.me.displayName,
+        avatarURL: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+        embeds: [embed]
+    });
 }

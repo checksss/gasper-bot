@@ -1,5 +1,13 @@
 import { Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
+import { 
+    GuildMember, 
+    Message, 
+    MessageEmbed, 
+    TextChannel, 
+    User, 
+    NewsChannel, 
+    Webhook 
+} from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
@@ -157,7 +165,19 @@ export default class BanCommand extends Command {
                 }
             })
 
-            await (logchannel as TextChannel).send(embed);
+            let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-ban-log`).first();
+            if (!webhook) {
+                webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-ban-log`, {
+                    avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                    reason: 'Logging bans enabled in this channel.'
+                })
+            }
+
+            await webhook.send({
+                username: message.guild.me.displayName,
+                avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                embeds: [embed]
+            });
         }
 
 

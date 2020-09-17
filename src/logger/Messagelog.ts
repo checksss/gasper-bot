@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { MessageEmbed, TextChannel, Guild, PartialMessage } from 'discord.js';
+import { MessageEmbed, TextChannel, Guild, PartialMessage, Webhook } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 
@@ -35,7 +35,19 @@ export default class MessageLogger {
             }
         });
 
-        return log.send(embed);
+        let webhook: Webhook = (await log.fetchWebhooks()).filter(w => w.name === `${msg.guild.me.user.username.toLowerCase()}-message-send-log`).first();
+        if(!webhook) {
+            webhook = await log.createWebhook(`${msg.guild.me.user.username.toLowerCase()}-message-send-log`, {
+                avatar: msg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+                reason: 'Logging sent messages enabled in this channel.'
+            })
+        }
+
+        return webhook.send({
+            username: msg.guild.me.displayName,
+            avatarURL: msg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+            embeds: [embed]
+        });
     }
 
     public static onEdit = async (oldMsg: Message, newMsg: Message, log: TextChannel) => {
@@ -91,16 +103,26 @@ export default class MessageLogger {
                 iconURL: newMsg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
-        return log.send(embed);
+
+        let webhook: Webhook = (await log.fetchWebhooks()).filter(w => w.name === `${newMsg.guild.me.user.username.toLowerCase()}-message-edit-log`).first();
+        if(!webhook) {
+            webhook = await log.createWebhook(`${newMsg.guild.me.user.username.toLowerCase()}-message-edit-log`, {
+                avatar: newMsg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+                reason: 'Logging edited messages enabled in this channel.'
+            })
+        }
+
+        return webhook.send({
+            username: newMsg.guild.me.displayName,
+            avatarURL: newMsg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+            embeds: [embed]
+        });
     }
 
     public static onDelete = async (msg: Message | PartialMessage, log: TextChannel) => {
 
         let now: moment.Moment = moment.utc(Date.now());
         let nowDay: string = now.format('DD');
-
-        const auditLog = await msg.guild.fetchAuditLogs({ type: 'MESSAGE_DELETE' }).then(audit => audit.entries.first());
-        const executor = auditLog.executor;
 
         if (!msg.guild.me.permissions.has('EMBED_LINKS')) {
             return log.send(stripIndents`
@@ -133,7 +155,20 @@ export default class MessageLogger {
                 iconURL: msg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
-        return log.send(embed);
+        
+        let webhook: Webhook = (await log.fetchWebhooks()).filter(w => w.name === `${msg.guild.me.user.username.toLowerCase()}-message-delete-log`).first();
+        if(!webhook) {
+            webhook = await log.createWebhook(`${msg.guild.me.user.username.toLowerCase()}-message-delete-log`, {
+                avatar: msg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+                reason: 'Logging deleted messages enabled in this channel.'
+            })
+        }
+
+        return webhook.send({
+            username: msg.guild.me.displayName,
+            avatarURL: msg.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+            embeds: [embed]
+        });
     }
 
     public static onBulkDelete = async (guild: Guild, amount: number, log: TextChannel, channel: TextChannel) => {
@@ -171,6 +206,19 @@ export default class MessageLogger {
                 iconURL: guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
-        return log.send(embed);
+        
+        let webhook: Webhook = (await log.fetchWebhooks()).filter(w => w.name === `${log.guild.me.user.username.toLowerCase()}-message-delete-bulk-log`).first();
+        if(!webhook) {
+            webhook = await log.createWebhook(`${log.guild.me.user.username.toLowerCase()}-message-delete-bulk-log`, {
+                avatar: log.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+                reason: 'Logging deleted messages enabled in this channel.'
+            })
+        }
+
+        return webhook.send({
+            username: log.guild.me.displayName,
+            avatarURL: log.guild.me.user.displayAvatarURL({format: 'png', dynamic: true}),
+            embeds: [embed]
+        });
     }
 }

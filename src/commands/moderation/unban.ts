@@ -1,8 +1,9 @@
 import { Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
+import { Webhook, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
+import { Argument } from 'discord-akairo';
 
 export default class UnbanCommand extends Command {
     public constructor() {
@@ -18,10 +19,15 @@ export default class UnbanCommand extends Command {
             args: [
                 {
                     id: 'user',
-                    type: 'user',
+                    type: Argument.union('user', async (_, phrase) => {
+                        let u: User = (await _.guild.fetchBans()).filter(b => b.user.id === phrase || b.user.username === phrase || b.user.tag === phrase).map(b => b.user)[0];
+                        if (u)
+                            return u;
+                        return null;
+                    }),
                     prompt: {
                         start: (message: Message): string => `${message.author}, who would you like to ban?`,
-                        retry: (message: Message): string => `${message.author}, please provide a valid user.`,
+                        retry: (message: Message): string => `${message.author}, please provide a valid user-id/-name/-tag.`,
                         retries: 2
                     }
                 },
@@ -66,8 +72,6 @@ export default class UnbanCommand extends Command {
 
         const clientMember = await message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        const isMember = message.guild.members.cache.has(user.id) ? true : false;
 
         if (!clientMember.permissions.has('BAN_MEMBERS')) return message.util!.reply('I\'m not allowed to unban members.');
 
@@ -118,7 +122,19 @@ export default class UnbanCommand extends Command {
                 `)
                 .setFooter(`User Unbanned by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-            await (logchannel as TextChannel).send(embed);
+            let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-ban-log`).first();
+            if (!webhook) {
+                webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-ban-log`, {
+                    avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                    reason: 'Logging bans enabled in this channel.'
+                })
+            }
+
+            await webhook.send({
+                username: message.guild.me.displayName,
+                avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                embeds: [embed]
+            });
         }
 
         message.channel.messages.fetch({ limit: 20 })

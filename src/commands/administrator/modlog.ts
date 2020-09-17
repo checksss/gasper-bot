@@ -13,6 +13,7 @@ export default class ModLogCommand extends Command {
                 examples: ['add message_update message-logs', 'remove message_delete #member-logs', 'add kick 606582348552601600']
             },
             category: 'Administrator',
+            clientPermissions: ['MANAGE_WEBHOOKS'],
             ratelimit: 2,
             args: [
                 {

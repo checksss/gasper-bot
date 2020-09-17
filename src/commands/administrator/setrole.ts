@@ -46,7 +46,7 @@ const permissions: Permissions = {
 export default class SetRoleCommand extends Command {
     public constructor() {
         super('setrole', {
-            aliases: ['setrole', 'roleset'],
+            aliases: ['setrole', 'roleset', 'newrole', 'createrole'],
             channel: 'guild',
             clientPermissions: 'MANAGE_ROLES',
             category: 'Administrator',

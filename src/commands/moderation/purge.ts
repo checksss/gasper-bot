@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
+import { Message, MessageEmbed, GuildMember, NewsChannel, Webhook } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { TextChannel } from 'discord.js';
 import moment from 'moment';
@@ -96,7 +96,7 @@ export default class PurgeCommand extends Command {
                 message.channel.messages.fetch({ limit: 100 })
                     .then((msgs) => {
                         let messages: Message[] = msgs.filter(m => m.author.id === member.id && Date.now() - m.createdTimestamp < 1209600000).array().slice(0, amount);
-                        (message.channel as TextChannel).bulkDelete(messages).then((deleted) => {
+                        (message.channel as TextChannel).bulkDelete(messages).then(async (deleted) => {
                             const embed = new MessageEmbed({
                                 author: {
                                     name: `#${(message.channel as TextChannel).name}`,
@@ -119,7 +119,21 @@ export default class PurgeCommand extends Command {
                             });
                             if (message.guild.channels.cache.has(modlog)) {
 
-                                (message.guild.channels.cache.get(modlog) as TextChannel).send(embed);
+                                let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
+                                
+                                let webhook: Webhook = (await logchannel.fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-message-delete-log`).first();
+                                if (!webhook) {
+                                    webhook = await logchannel.createWebhook(`${this.client.user.username.toLowerCase()}-message-delete-log`, {
+                                        avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                                        reason: 'Logging deleted messages enabled in this channel.'
+                                    })
+                                }
+                    
+                                await webhook.send({
+                                    username: message.guild.me.displayName,
+                                    avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                                    embeds: [embed]
+                                });
                             };
                         });
                     });

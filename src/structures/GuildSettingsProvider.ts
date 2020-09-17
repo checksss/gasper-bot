@@ -52,9 +52,6 @@ export default class GuildSettingsProvider extends Provider {
 			.insert()
 			.into(GuildSettings)
 			.values({ guild: id, settings: JSON.stringify(data) })
-			.onConflict(stripIndents`UPDATE \`guild_settings\`
-			SET \`settings\` = '${JSON.stringify(data)}'
-			WHERE \`guild_settings\`.\`guild\` = '${id}';`)
 			.setParameter('settings', JSON.stringify(data))
 			.execute()
 			.catch(e => {
@@ -79,9 +76,6 @@ export default class GuildSettingsProvider extends Provider {
 			.insert()
 			.into(GuildSettings)
 			.values({ guild: id, settings: JSON.stringify(data) })
-			.onConflict(stripIndents`UPDATE \`guild_settings\`
-			SET \`settings\` = '${JSON.stringify(data)}'
-			WHERE \`guild_settings\`.\`guild\` = '${id}';`)
 			.setParameter('settings', JSON.stringify(data))
 			.execute()
 			.catch(e => {

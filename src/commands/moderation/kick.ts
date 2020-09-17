@@ -1,5 +1,12 @@
-import { Argument, Command } from 'discord-akairo';
-import { GuildMember, Message, MessageEmbed, TextChannel, NewsChannel } from 'discord.js';
+import { Command } from 'discord-akairo';
+import { 
+    GuildMember, 
+    Message, 
+    MessageEmbed, 
+    TextChannel, 
+    NewsChannel, 
+    Webhook 
+} from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
@@ -115,7 +122,19 @@ export default class BanCommand extends Command {
                 `)
                 .setFooter(`Member Kicked by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-            await (logchannel as TextChannel).send(embed);
+                let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-kick-log`).first();
+                if (!webhook) {
+                    webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-kick-log`, {
+                        avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                        reason: 'Logging kicks enabled in this channel.'
+                    })
+                }
+    
+                await webhook.send({
+                    username: message.guild.me.displayName,
+                    avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
+                    embeds: [embed]
+                });
         }
 
 
