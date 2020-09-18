@@ -26,7 +26,7 @@ export default class SoftbanCommand extends Command {
                 examples: ['@overtroll#1234 t=5m', 'soupguy t=3d annoying', '@spambot#1337 t=5d d=7 spamming'],
             },
             category: 'Moderation',
-            clientPermissions: ['BAN_MEMBERS', 'EMBED_LINKS'],
+            clientPermissions: ['BAN_MEMBERS', 'MANAGE_WEBHOOKS'],
             args: [
                 {
                     id: 'user',

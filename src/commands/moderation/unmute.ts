@@ -19,6 +19,7 @@ export default class UnmuteCommand extends Command {
             aliases: ['unmute', 'um'],
             category: 'Moderation',
             channel: 'guild',
+            clientPermissions: ['MANAGE_ROLES', 'MANAGE_WEBHOOKS'],
             description: {
                 content: `Unmute a member.`,
                 usage: '<member> [reason]',

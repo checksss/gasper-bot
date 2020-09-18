@@ -8,7 +8,7 @@ import {
     Role
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import { owners } from '../../config';
 import ms from 'ms';
 import wh from '../../structures/webHook';
@@ -19,6 +19,7 @@ export default class MuteCommand extends Command {
             aliases: ['mute', 'm'],
             category: 'Moderation',
             channel: 'guild',
+            clientPermissions: ['MANAGE_WEBHOOKS', 'MANAGE_ROLES'],
             description: {
                 content: stripIndents`
                 Mute a member.
@@ -239,7 +240,7 @@ export default class MuteCommand extends Command {
                     icon_url: member.user.displayAvatarURL()
                 },
                 description: stripIndents`
-                **Action**: Mute/Tempmute
+                **Action**: ${ms(time) > 0 ? `Tempmute` : `Mute` }
                 **Reason:** ${reason ? reason : 'No reason'}${ms(time) > 0 ? `
                 **Duration:** ${ms(ms(time))}` : ''}
             `,

@@ -15,7 +15,7 @@ export default class UnbanCommand extends Command {
                 examples: ['@overtroll', '@soupguy mistake'],
             },
             category: 'Moderation',
-            clientPermissions: ['BAN_MEMBERS', 'EMBED_LINKS'],
+            clientPermissions: ['BAN_MEMBERS', 'MANAGE_WEBHOOKS'],
             args: [
                 {
                     id: 'user',

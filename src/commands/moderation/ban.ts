@@ -22,7 +22,7 @@ export default class BanCommand extends Command {
                 examples: ['@overtroll', '@soupguy annoying', '@spambot#1337 d=7 spamming'],
             },
             category: 'Moderation',
-            clientPermissions: ['BAN_MEMBERS', 'EMBED_LINKS'],
+            clientPermissions: ['BAN_MEMBERS', 'MANAGE_WEBHOOKS'],
             args: [
                 {
                     id: 'user',

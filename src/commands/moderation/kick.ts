@@ -21,7 +21,7 @@ export default class BanCommand extends Command {
                 examples: ['@overtroll', '@soupguy annoying'],
             },
             category: 'Moderation',
-            clientPermissions: ['KICK_MEMBERS', 'EMBED_LINKS'],
+            clientPermissions: ['KICK_MEMBERS', 'MANAGE_WEBHOOKS'],
             args: [
                 {
                     id: 'member',

@@ -17,6 +17,7 @@ export default class WarnCommand extends Command {
             aliases: ['warn', 'w'],
             category: 'Moderation',
             channel: 'guild',
+            clientPermissions: ['MANAGE_WEBHOOKS'],
             description: {
                 content: stripIndents`
                 Warn a member.
