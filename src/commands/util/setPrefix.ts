@@ -74,7 +74,7 @@ export default class SetPrefixCommand extends Command {
 			this.client.guildsettings.set(message.guild, 'config.prefix', prefix);
 		} else if (userMethods.includes(method)) {
 			//@ts-ignore
-			let userpfx = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
+			let userpfx = this.client.usersettings.get(message.author, 'config.prefixes', []);
 			if (!userpfx.includes(prefix)) {
 				//@ts-ignore
 				this.client.usersettings.set(message.author, 'config.prefixes', userpfx.concat(prefix));
@@ -96,7 +96,7 @@ export default class SetPrefixCommand extends Command {
 			}
 		} else if (removeMethods.includes(method)) {
 			//@ts-ignore
-			let pfxAr = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
+			let pfxAr = this.client.usersettings.get(message.author, 'config.prefixes', []);
 			if (!pfxAr.includes(prefix)) return message.util!.reply(`\`${prefix}\` is not set as prefix for you yet.`);
 			let newPfx: string[] = [];
 			pfxAr.forEach((p: string) => {
@@ -119,7 +119,7 @@ export default class SetPrefixCommand extends Command {
 				});
 		} else {
 			//@ts-ignore
-			const pfx = message.guild ? this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix) : this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
+			const pfx: string[] = message.guild ? [this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix)] : this.client.usersettings.get(message.author, 'config.prefixes', []);
 			return message.util!.send(stripIndents`
 			That method doesn't exist on \`setprefix\`;
 			Try \`${message.guild ? pfx : pfx[0]}help setprefix\` for help.`);
