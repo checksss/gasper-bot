@@ -144,8 +144,8 @@ export default class ReadyListener extends Listener {
 					})
 				}
 
-				let bannedUsers: User[] = (await g.fetchBans()).map(b => b.user);
 				try {
+					let bannedUsers: User[] = (await g.fetchBans()).map(b => b.user);
 					bannedUsers.forEach(async (u) => {
 						//@ts-ignore
 						let sbts: string[] = client.infractions.get(u.id!, `softbans.${g.id}.timestamp`, []);
