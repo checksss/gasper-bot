@@ -7,6 +7,4 @@ src/config.ts.prod
 package-lock.json
 assets
 for_the_lurkers
-db.sqlite
 logs
-src/listeners/client/controller
