@@ -4,12 +4,12 @@ import {
     GuildMember, 
     MessageEmbed, 
     TextChannel, 
-    NewsChannel, 
-    Webhook 
+    NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
+import wh from '../../structures/webHook'
 
 export default class WarnCommand extends Command {
     public constructor() {
@@ -159,20 +159,11 @@ export default class WarnCommand extends Command {
                         text: `Member Unwarned by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`
                     }
                 })
-                
-                let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-warn-log`).first();
-                if (!webhook) {
-                    webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-warn-log`, {
-                        avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                        reason: 'Logging warns enabled in this channel.'
-                    })
+                let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
+                if(!webhook) {
+                    webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
                 }
-    
-                await webhook.send({
-                    username: message.guild.me.displayName,
-                    avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                    embeds: [embed]
-                });
+                wh.send(webhook, message.guild, this.client.user, embed);
             }
 
             message.channel.messages.fetch({ limit: 20 })
@@ -246,19 +237,11 @@ export default class WarnCommand extends Command {
                     }
                 })
 
-                let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-warn-log`).first();
-                if (!webhook) {
-                    webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-warn-log`, {
-                        avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                        reason: 'Logging warns enabled in this channel.'
-                    })
+                let webhook = await wh.get('warn', this.client.user, logchannel as TextChannel);
+                if(!webhook) {
+                    webhook = await wh.create('warn', this.client.user, logchannel as TextChannel);
                 }
-    
-                await webhook.send({
-                    username: message.guild.me.displayName,
-                    avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                    embeds: [embed]
-                });
+                wh.send(webhook, message.guild, this.client.user, embed);
             }
 
             message.channel.messages.fetch({ limit: 20 })

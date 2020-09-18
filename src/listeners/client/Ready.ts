@@ -80,7 +80,7 @@ export default class ReadyListener extends Listener {
 			setTimeout(prefixpresence, 55000, client)
 		};
 
-		let softBanCheck = async function (client: AkairoClient) {
+		let infractionTimerCheck = async function (client: AkairoClient) {
 			client.guilds.cache.forEach(async (g) => {
 
 				let bannedUsers: User[] = (await g.fetchBans()).map(b => b.user);
@@ -99,7 +99,7 @@ export default class ReadyListener extends Listener {
 					let time: string = sbts.slice(-1).pop();
 					let duration: string = sbdts.slice(-1).pop();
 					let reason: string = sbr.slice(-1).pop();
-					let ub_time: string = sbubts.slice(-1).pop();
+					let rm_time: string = sbubts.slice(-1).pop();
 
 					let now: moment.Moment = moment.utc(Date.now());
 					let nowDay: string = now.format('DD');
@@ -109,7 +109,7 @@ export default class ReadyListener extends Listener {
 					const logchannel = g.channels.cache.get(modLog);
 
 					var checksum_1: number = Date.now() - parseInt(time);
-					var checksum_2: boolean = parseInt(ub_time) > 0;
+					var checksum_2: boolean = parseInt(rm_time) > 0;
 
 					if (checksum_1 >= parseInt(duration) && !checksum_2) {
 
@@ -156,7 +156,7 @@ export default class ReadyListener extends Listener {
 		presence(client);
 		setInterval(presence, 60000, client);
 		setInterval(memberFetch, 86400000, client);
-		setInterval(softBanCheck, 10000, client as BotClient);
+		setInterval(infractionTimerCheck, 10000, client as BotClient);
 
 		console.log(stripIndents`
 		${this.client.user.tag/*Gasper#5465*/} - One Bot to rule 'em all!

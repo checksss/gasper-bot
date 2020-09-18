@@ -13,6 +13,7 @@ import util from 'util';
 const wait = util.promisify(setTimeout);
 import validator from 'validator';
 import url from 'url';
+import wh from '../../structures/webHook'
 
 export default class QuoteCommand extends Command {
   public constructor() {
@@ -180,9 +181,9 @@ export default class QuoteCommand extends Command {
       }
 
       (message.channel as TextChannel).fetchWebhooks().then(async hooks => {
-        let webhook: Webhook = hooks.find(hook => hook.name === `gasper_webhook_#${(message.channel as TextChannel).name}`);
-        if (!webhook) {
-          webhook = await (message.channel as TextChannel).createWebhook(`gasper_webhook_#${(message.channel as TextChannel).name}`);
+        let webhook = await wh.get('mute', this.client.user, message.channel as TextChannel);
+        if(!webhook) {
+            webhook = await wh.create('mute', this.client.user, message.channel as TextChannel);
           sendWebhook(webhook, nembed, msg);
         } else {
           sendWebhook(webhook, nembed, msg);

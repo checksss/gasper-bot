@@ -4,6 +4,7 @@ import { owners } from "../../config";
 import moment from "moment";
 import { stripIndents } from "common-tags";
 import { TextChannel } from "discord.js";
+import wh from '../../structures/webHook'
 
 export default class BugreportCommand extends Command {
     public constructor() {
@@ -184,7 +185,11 @@ export default class BugreportCommand extends Command {
             let rcID: string = this.client.guildsettings.get('global', 'config.bugreport_logchannel', '')
             let reportChannel = home.channels.cache.get(rcID);
             if (reportChannel && rcID !== '') {
-                return (reportChannel as TextChannel).send(submitEmbed);
+                let webhook = await wh.get('bugreport', this.client.user, reportChannel as TextChannel);
+                if(!webhook) {
+                    webhook = await wh.create('bugreport', this.client.user, reportChannel as TextChannel);
+                }
+                return wh.send(webhook, home, this.client.user, submitEmbed);
             } else {
                 return owner.send(submitEmbed);
             }

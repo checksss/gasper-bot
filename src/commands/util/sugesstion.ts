@@ -4,6 +4,7 @@ import { owners } from "../../config";
 import moment from "moment";
 import { stripIndents } from "common-tags";
 import { TextChannel } from "discord.js";
+import wh from '../../structures/webHook'
 
 export default class SuggestionsCommand extends Command {
     public constructor() {
@@ -81,7 +82,11 @@ export default class SuggestionsCommand extends Command {
         let scID: string = this.client.guildsettings.get('global', 'config.suggestion_logchannel', '')
         let suggestionChannel = home.channels.cache.get(scID);
         if (suggestionChannel && scID !== '') {
-            (suggestionChannel as TextChannel).send(submitEmbed);
+            let webhook = await wh.get('suggestion', this.client.user, suggestionChannel as TextChannel);
+            if(!webhook) {
+                webhook = await wh.create('suggestion', this.client.user, suggestionChannel as TextChannel);
+            }
+            wh.send(webhook, home, this.client.user, submitEmbed);
         } else {
             owner.send(submitEmbed);
         }

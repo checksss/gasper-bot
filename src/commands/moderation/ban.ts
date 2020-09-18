@@ -5,12 +5,12 @@ import {
     MessageEmbed, 
     TextChannel, 
     User, 
-    NewsChannel, 
-    Webhook 
+    NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
+import wh from '../../structures/webHook'
 
 export default class BanCommand extends Command {
     public constructor() {
@@ -165,19 +165,11 @@ export default class BanCommand extends Command {
                 }
             })
 
-            let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-ban-log`).first();
-            if (!webhook) {
-                webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-ban-log`, {
-                    avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                    reason: 'Logging bans enabled in this channel.'
-                })
+            let webhook = await wh.get('ban', this.client.user, logchannel as TextChannel);
+            if(!webhook) {
+                webhook = await wh.create('ban', this.client.user, logchannel as TextChannel);
             }
-
-            await webhook.send({
-                username: message.guild.me.displayName,
-                avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                embeds: [embed]
-            });
+            wh.send(webhook, message.guild, this.client.user, embed);
         }
 
 

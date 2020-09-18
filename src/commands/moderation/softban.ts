@@ -5,9 +5,7 @@ import {
     MessageEmbed,
     TextChannel,
     User,
-    Guild,
-    NewsChannel,
-    Webhook
+    NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
@@ -16,6 +14,7 @@ import { Channel } from 'discord.js';
 import { owners } from '../../config';
 import { Argument } from 'discord-akairo';
 import { AkairoClient } from 'discord-akairo';
+import wh from '../../structures/webHook'
 
 export default class SoftbanCommand extends Command {
     public constructor() {
@@ -187,7 +186,11 @@ export default class SoftbanCommand extends Command {
                 }
             })
 
-            await sendWebhook(logchannel, message, embed, this.client);
+            let webhook = await wh.get('ban', this.client.user, logchannel as TextChannel);
+            if(!webhook) {
+                webhook = await wh.create('ban', this.client.user, logchannel as TextChannel);
+            }
+            wh.send(webhook, message.guild, this.client.user, embed);
         }
 
         message.channel.messages.fetch({ limit: 20 })
@@ -221,20 +224,4 @@ export default class SoftbanCommand extends Command {
 
         return await msg.delete({ timeout: 5000, reason: 'Keeping chat clean' });
     }
-}
-
-async function sendWebhook(logchannel: Channel, message: Message, embed: MessageEmbed, client: AkairoClient) {
-    let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${client.user.username.toLowerCase()}-ban-log`).first();
-    if (!webhook) {
-        webhook = await (logchannel as TextChannel).createWebhook(`${client.user.username.toLowerCase()}-ban-log`, {
-            avatar: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-            reason: 'Logging bans enabled in this channel.'
-        })
-    }
-
-    await webhook.send({
-        username: message.guild.me.displayName,
-        avatarURL: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-        embeds: [embed]
-    });
 }

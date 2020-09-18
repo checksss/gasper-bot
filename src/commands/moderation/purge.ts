@@ -1,9 +1,10 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, GuildMember, NewsChannel, Webhook } from 'discord.js';
+import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { TextChannel } from 'discord.js';
 import moment from 'moment';
 import { owners } from '../../config';
+import wh from '../../structures/webHook'
 
 export default class PurgeCommand extends Command {
     public constructor() {
@@ -120,20 +121,11 @@ export default class PurgeCommand extends Command {
                             if (message.guild.channels.cache.has(modlog)) {
 
                                 let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
-                                
-                                let webhook: Webhook = (await logchannel.fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-message-delete-log`).first();
-                                if (!webhook) {
-                                    webhook = await logchannel.createWebhook(`${this.client.user.username.toLowerCase()}-message-delete-log`, {
-                                        avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                                        reason: 'Logging deleted messages enabled in this channel.'
-                                    })
+                                let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
+                                if(!webhook) {
+                                    webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
                                 }
-                    
-                                await webhook.send({
-                                    username: message.guild.me.displayName,
-                                    avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                                    embeds: [embed]
-                                });
+                                wh.send(webhook, message.guild, this.client.user, embed);
                             };
                         });
                     });

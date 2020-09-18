@@ -1,9 +1,9 @@
-import { Command } from 'discord-akairo';
-import { Webhook, Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
+import { Command, Argument } from 'discord-akairo';
+import { Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import { owners } from '../../config';
-import { Argument } from 'discord-akairo';
+import wh from '../../structures/webHook'
 
 export default class UnbanCommand extends Command {
     public constructor() {
@@ -122,19 +122,11 @@ export default class UnbanCommand extends Command {
                 `)
                 .setFooter(`User Unbanned by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-            let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${this.client.user.username.toLowerCase()}-ban-log`).first();
-            if (!webhook) {
-                webhook = await (logchannel as TextChannel).createWebhook(`${this.client.user.username.toLowerCase()}-ban-log`, {
-                    avatar: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                    reason: 'Logging bans enabled in this channel.'
-                })
-            }
-
-            await webhook.send({
-                username: message.guild.me.displayName,
-                avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-                embeds: [embed]
-            });
+                let webhook = await wh.get('ban', this.client.user, logchannel as TextChannel);
+                if(!webhook) {
+                    webhook = await wh.create('ban', this.client.user, logchannel as TextChannel);
+                }
+                wh.send(webhook, message.guild, this.client.user, embed);
         }
 
         message.channel.messages.fetch({ limit: 20 })
