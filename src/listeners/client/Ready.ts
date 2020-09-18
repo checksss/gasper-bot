@@ -1,9 +1,11 @@
 import { stripIndents } from 'common-tags';
 import { AkairoClient, Listener } from 'discord-akairo';
+import { Role } from 'discord.js';
 import { MessageEmbed, Webhook, TextChannel, User } from 'discord.js';
 import moment from 'moment';
 import ms from 'ms';
 import BotClient from '../../client/BotClient';
+import wh from '../../structures/webHook'
 
 export default class ReadyListener extends Listener {
 	public constructor() {
@@ -83,8 +85,70 @@ export default class ReadyListener extends Listener {
 		let infractionTimerCheck = async function (client: AkairoClient) {
 			client.guilds.cache.forEach(async (g) => {
 
-				let bannedUsers: User[] = (await g.fetchBans()).map(b => b.user);
+				//@ts-ignore
+				let muteroleID: string = await client.guildsettings.get(g!, `config.mute-role`, '');
+				let mutedUsers: User[] = (await g.members.fetch()).filter(m => m.roles.cache.has(muteroleID)).map(m => m.user);
 
+				if (mutedUsers.length > 0) {
+					mutedUsers.forEach(async u => {
+
+						//@ts-ignore
+						let sbts: string[] = client.infractions.get(u.id!, `mutes.${g.id}.timestamp`, []);
+						//@ts-ignore
+						let sbdts: string[] = client.infractions.get(u.id!, `mutes.${g.id}.duration`, []);
+						//@ts-ignore
+						let sbr: string[] = client.infractions.get(u.id!, `mutes.${g.id}.reason`, []);
+						//@ts-ignore
+						let sbubts: string[] = client.infractions.get(u.id!, `mutes.${g.id}.unmuted_timestamp`, ['0']);
+
+						let time: string = sbts.slice(-1).pop();
+						let duration: string = sbdts.slice(-1).pop();
+						let reason: string = sbr.slice(-1).pop();
+						let rm_time: string = sbubts.slice(-1).pop();
+
+						let now: moment.Moment = moment.utc(Date.now());
+						let nowDay: string = now.format('DD');
+
+						//@ts-ignore
+						const modLog = await client.guildsettings.get(g!, 'config.mute_logchannel', '');
+						const logchannel = g.channels.cache.get(modLog);
+
+						var checksum_1: number = Date.now() - parseInt(time);
+						var checksum_2: boolean = parseInt(rm_time) > 0;
+
+						if (checksum_1 >= parseInt(duration) && !checksum_2 && parseInt(duration) > 0) {
+							//@ts-ignore
+							let sbu: string[] = await client.infractions.get(u.id!, `mutes.${g.id}.unmuted_timestamp`, []);
+							sbu.push(`${Date.now()}`);
+							//@ts-ignore
+							await client.infractions.set(u.id!, `mutes.${g.id}.unmuted_timestamp`, sbu);
+
+							//@ts-ignore
+							let roleIDs: string[] = await client.infractions.get(u.id!, `mutes.${g.id}.roles_before`, []);
+							await g.members.cache.get(u.id).roles.add(roleIDs);
+							await g.members.cache.get(u.id).roles.remove(muteroleID);
+
+							if (g.channels.cache.has(modLog)) {
+								const embed = new MessageEmbed()
+									.setColor(g.me.displayColor)
+									.setAuthor(`${u.tag} (${u.id})`, u.displayAvatarURL({ format: 'png', dynamic: true }))
+									.setDescription(stripIndents`
+								**Action**: Unmute (Tempmute)
+								**Reason:** ${reason ? `${reason} | Tempmute over after ${ms(ms(duration))}` : `No reason | Tempmute over after ${ms(ms(duration))}`}
+								`)
+									.setFooter(`User Unmuted by ${client.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
+
+								let webhook = await wh.get('mute', g.me.user, logchannel as TextChannel);
+								if (!webhook) {
+									webhook = await wh.create('mute', g.me.user, logchannel as TextChannel);
+								}
+								wh.send(webhook, g, g.me.user, embed);
+							}
+						}
+					})
+				}
+
+				let bannedUsers: User[] = (await g.fetchBans()).map(b => b.user);
 				bannedUsers.forEach(async (u) => {
 
 					//@ts-ignore
@@ -134,19 +198,11 @@ export default class ReadyListener extends Listener {
 								`)
 								.setFooter(`User Unbanned by ${client.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-							let webhook: Webhook = (await (logchannel as TextChannel).fetchWebhooks()).filter(w => w.name === `${client.user.username.toLowerCase()}-ban-log`).first();
+							let webhook = await wh.get('ban', g.me.user, logchannel as TextChannel);
 							if (!webhook) {
-								webhook = await (logchannel as TextChannel).createWebhook(`${client.user.username.toLowerCase()}-ban-log`, {
-									avatar: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-									reason: 'Logging bans enabled in this channel.'
-								})
+								webhook = await wh.create('ban', g.me.user, logchannel as TextChannel);
 							}
-
-							await webhook.send({
-								username: g.me.displayName,
-								avatarURL: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
-								embeds: [embed]
-							});
+							wh.send(webhook, g, g.me.user, embed);
 						}
 					}
 				})
