@@ -68,7 +68,8 @@ export default class HelpCommand extends Command {
 
 
         const prefix = await (this.handler.prefix as PrefixSupplier)(message);
-        var rnd = Math.floor(Math.random() * prefix.length) - 1;
+        var rnd = Math.floor(Math.random() * prefix.length);
+        if (rnd === prefix.length) rnd = rnd - 1;
         if (!command) {
             const embed = new MessageEmbed()
                 //@ts-ignore
@@ -86,7 +87,7 @@ export default class HelpCommand extends Command {
                 var ownerCats: string[] = ['Server Owner', 'Administrator', 'Moderation', 'Info', 'Util', 'Public'];
                 var adminCats: string[] = ['Administrator', 'Moderation', 'Info', 'Util', 'Public'];
                 var modCats: string[] = ['Moderation', 'Info', 'Util', 'Public'];
-                var pubCats: string[] = ['Info', 'Util', 'Public'];
+                var pubCats: string[] = ['Info', 'Util'];
 
                 if (isDev && categoryName !== 'Default') {
                     embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
