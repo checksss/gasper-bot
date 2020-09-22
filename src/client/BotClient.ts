@@ -6,7 +6,8 @@ import {
 } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { join } from 'path';
-import { owners, defaultPrefix, databaseName } from '../config';
+import botConfig from '../config/botConfig';
+import dbConfig from '../config/dbConfig'
 import { Connection } from 'typeorm';
 import Database from '../structures/Database';
 import GuildSettingsProvider from '../structures/GuildSettingsProvider';
@@ -45,15 +46,15 @@ export default class BotClient extends AkairoClient {
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (msg: Message) => {
-			let guildprefix: string = this.guildsettings.get(msg.guild, 'config.prefix', defaultPrefix);
-			let userprefixes: string[] = this.usersettings.get(msg.author, 'config.prefixes', [defaultPrefix]);
+			let guildprefix: string = this.guildsettings.get(msg.guild, 'config.prefix', botConfig.botDefaultPrefix);
+			let userprefixes: string[] = this.usersettings.get(msg.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
 			if (msg.guild) {
-				return userprefixes.concat(guildprefix).concat(defaultPrefix);
+				return userprefixes.concat(guildprefix).concat(botConfig.botDefaultPrefix);
 			} else {
-				return userprefixes.concat(defaultPrefix);
+				return userprefixes.concat(botConfig.botDefaultPrefix);
 			}
 		},
-		ignorePermissions: owners,
+		ignorePermissions: botConfig.botOwner,
 		handleEdits: true,
 		commandUtil: true,
 		commandUtilLifetime: 3e5,
@@ -84,7 +85,7 @@ export default class BotClient extends AkairoClient {
 
 	public constructor(config: BotOptions) {
 		super({
-			ownerID: owners,
+			ownerID: botConfig.botOwner,
 			// shards: 'auto',
 			// shardCount: 1,
 		});
@@ -106,7 +107,7 @@ export default class BotClient extends AkairoClient {
 		this.listenerHandler.loadAll();
 		this.inhibitorHandler.loadAll();
 
-		this.db = Database.get(databaseName);
+		this.db = Database.get(dbConfig.databaseName);
 		await this.db.connect();
 		await this.db.synchronize();
 

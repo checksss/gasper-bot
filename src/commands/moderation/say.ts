@@ -8,8 +8,8 @@ export default class SayCommand extends Command {
             aliases: ['say', 'echo', 'print'],
             description: {
                 content: 'Spread your word through me!',
-                usage: ['[channel] <text>'],
-                examples: ['Hey!', '#general Yo!']
+                usage: ['[-c <channel>] <text>'],
+                examples: ['Hey!', '-c #general Yo!', 'c=#general eyyyy']
             },
             category: 'Moderation',
             clientPermissions: ['MANAGE_MESSAGES'],
@@ -18,34 +18,17 @@ export default class SayCommand extends Command {
             args: [
                 {
                     id: 'channel',
-                    match: 'phrase',
-                    //type: 'channel',
-                    type: Argument.union('channel', async (message, phrase) => {
-                        let ch = await this.client.channels.fetch(phrase).catch((e) => { if (e) return { id: message.channel.id, channel: message.channel } });
-                        if (ch) return { id: ch.id, channel: ch };
-                        return { id: message.channel.id, channel: message.channel };
-                    }),
+                    match: 'option',
+                    type: 'channel',
+                    flag: ['-c', 'c='],
                     default: (message: Message): Channel => message.channel!
                 },
                 {
                     id: 'content',
-                    match: 'content',
+                    match: 'rest',
                     type: 'string',
-                    default: (message: Message) => {
-                        let contAr: string[] = message.content.split(' ');
-                        let content: string = message.content.replace(contAr[0], '');
-                        let isChannel: boolean =
-                            message.guild.channels.cache.has(contAr[1]) ||
-                            contAr[1] === message.channel.id ||
-                            contAr[1] === (message.channel as TextChannel).name ||
-                            contAr[1] === `<#${message.channel.id}>` ||
-                            contAr[1] === `#${(message.channel as TextChannel).name}` ||
-                            contAr[1] === `${message.channel}`;
-
-                        if (isChannel) {
-                            content = content.replace(contAr[1], '');
-                        }
-                        return content;
+                    prompt: {
+                        start: (msg: Message) => `${msg.author}, please provide some Text!`
                     }
                 }
             ]
@@ -89,20 +72,6 @@ export default class SayCommand extends Command {
         var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
         if (!moderators.includes(message.author!.id) && modrole.size == 0 && message.author.id != this.client.ownerID) return message.util!.reply('You\'re not allowed to speak through me.');
 
-        let contAr: string[] = content.split(' ');
-        let isChannel: boolean =
-            message.guild.channels.cache.has(contAr[0]) ||
-            contAr[0] === textChannel.id ||
-            contAr[0] === textChannel.name ||
-            contAr[0] === `<#${textChannel.id}>` ||
-            contAr[0] === `#${textChannel.name}` ||
-            contAr[0] === `${textChannel}`;
-
-        if (isChannel) {
-            content = content.replace(contAr[0], '');
-        } else {
-            textChannel = message.channel as TextChannel;
-        }
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
                 let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();

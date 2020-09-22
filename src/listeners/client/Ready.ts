@@ -1,10 +1,10 @@
 import { stripIndents } from 'common-tags';
 import { AkairoClient, Listener } from 'discord-akairo';
-import { Role } from 'discord.js';
 import { MessageEmbed, Webhook, TextChannel, User } from 'discord.js';
 import moment from 'moment';
 import ms from 'ms';
 import BotClient from '../../client/BotClient';
+import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class ReadyListener extends Listener {
@@ -29,10 +29,24 @@ export default class ReadyListener extends Listener {
 		}
 
 		let prefixpresence = function (client: AkairoClient) {
+			let prefixArr: string[] = ['mention me for prefix-list', `Default-Prefix: ${botConfig.botDefaultPrefix} (global)`];
+			//@ts-ignore
+			let switchPfx: number = client.guildsettings.get('global', 'presence.prefix.switch', 1);
+			switch (switchPfx) {
+				case 0:
+					switchPfx = 1
+					break;
+				default:
+					switchPfx = 0
+					break;
+			};
+			//@ts-ignore
+			client.guildsettings.set('global', 'presence.prefix.switch', switchPfx);
+
 			client.user.setPresence({
 				activity: {
 					type: 'PLAYING',
-					name: `mention me for prefix`
+					name: prefixArr[switchPfx]
 				},
 				status: 'online',
 				afk: false,
@@ -219,7 +233,7 @@ export default class ReadyListener extends Listener {
 		presence(client);
 		setInterval(presence, 60000, client);
 		setInterval(memberFetch, 86400000, client);
-		setInterval(infractionTimerCheck, 10000, client as BotClient);
+		setInterval(infractionTimerCheck, 1000, client as BotClient);
 
 		console.log(stripIndents`
 		${this.client.user.tag/*Gasper#5465*/} - One Bot to rule 'em all!

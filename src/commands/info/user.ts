@@ -29,7 +29,7 @@ export default class UserInfoCommand extends Command {
     }
 
     public async exec(message: Message, { member }: { member: GuildMember }): Promise<Message | Message[]> {
-        if (message.deletable && !message.deleted) await message.delete();
+
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);

@@ -1,7 +1,6 @@
 import { Listener } from "discord-akairo";
 import { Guild, TextChannel, Collection, Message, PartialMessage } from "discord.js";
 import MessageLogger from '../../logger/Messagelog';
-import { defaultPrefix } from '../../config';
 
 export default class MessageDeleteListener extends Listener {
     public constructor() {

@@ -18,8 +18,11 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { token } from './config';
+import botConfig from './config/botConfig';
 import BotClient from './client/BotClient';
+import dotenv from 'dotenv';
+
+let token = botConfig.botToken
 
 const client = new BotClient({ token });
 

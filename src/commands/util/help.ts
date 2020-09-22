@@ -42,7 +42,7 @@ export default class HelpCommand extends Command {
                 administrators = administrators.concat(dA);
             }
         })
-        var isAdmin: boolean = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id)).size !== 0;
+        var isAdmin: boolean = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id)).size !== 0 || administrators.includes(authorMember.id);
         // ------------------------------------
         // ---------- MODS --------------------
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
@@ -57,7 +57,24 @@ export default class HelpCommand extends Command {
                 moderators.push(o);
             }
         })
-        var isMod: boolean = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id)).size !== 0;
+        var isMod: boolean = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id)).size !== 0 || moderators.includes(authorMember.id);
+        // ------------------------------------
+        // ---------- STAFF -------------------
+        let defaultStaff: string[] = []
+        for (let m in moderators) {
+            defaultStaff.push(m);
+        }
+        for (let a in administrators) {
+            defaultStaff.push(a);
+        }
+        //@ts-ignore
+        let staff: string[] = await this.client.guildsettings.get(message.guild!, 'config.staff', [])
+        if (staff.length === 0) {
+            staff = defaultStaff
+            //@ts-ignore
+            this.client.guildsettings.set(message.guild!, 'config.staff', staff);
+        }
+        var isStaff: boolean = authorMember.roles.cache.filter((r): boolean => staff.includes(r.id)).size !== 0 || staff.includes(authorMember.id);
         // ------------------------------------
         // ---------- DEVS --------------------
         var isDev: boolean = owners.includes(message.author.id);
@@ -77,16 +94,15 @@ export default class HelpCommand extends Command {
                 .setTitle('Commands')
                 .setDescription(stripIndents`A list of available commands.
                 For additional info on a command, type \`${prefix[rnd]}help <command>\`
-
-
             `);
 
             for (const category of this.handler.categories.values()) {
                 var categoryName: string = category.id.replace(/(\b\w)/gi, (lc): string => lc.toUpperCase());
 
-                var ownerCats: string[] = ['Server Owner', 'Administrator', 'Moderation', 'Info', 'Util', 'Public'];
-                var adminCats: string[] = ['Administrator', 'Moderation', 'Info', 'Util', 'Public'];
-                var modCats: string[] = ['Moderation', 'Info', 'Util', 'Public'];
+                var ownerCats: string[] = ['Server Owner', 'Administrator', 'Moderation', 'Info', 'Util'];
+                var adminCats: string[] = ['Administrator', 'Moderation', 'Info', 'Util'];
+                var modCats: string[] = ['Moderation', 'Info', 'Util'];
+                var staffCats: string[] = ['Staff', 'Info', 'Util']
                 var pubCats: string[] = ['Info', 'Util'];
 
                 if (isDev && categoryName !== 'Default') {
@@ -97,7 +113,9 @@ export default class HelpCommand extends Command {
                     embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
                 } else if (isMod && !isAdmin && !isOwner && !isDev && modCats.includes(categoryName)) {
                     embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
-                } else if (!isDev && !isOwner && !isAdmin && !isMod && pubCats.includes(categoryName)) {
+                } else if (isStaff && !isMod && !isAdmin && !isOwner && !isDev && staffCats.includes(categoryName)) {
+                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                } else if (!isDev && !isOwner && !isAdmin && !isMod && !isStaff && pubCats.includes(categoryName)) {
                     embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
                 }
             }

@@ -1,7 +1,7 @@
 import { Listener } from 'discord-akairo';
 import { Message, TextChannel, MessageEmbed } from 'discord.js';
 import wordFilters from '../../structures/wordFilter';
-import { defaultPrefix } from '../../config';
+import botConfig from '../../config/botConfig';
 import MessageLogger from '../../logger/Messagelog';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
@@ -42,7 +42,7 @@ export default class MessageListener extends Listener {
 				//@ts-ignore
 				guildprefix +
 				'`' +
-				`${userprefixes.length >= 1 ? `\n\n*your global Prefixes are:*\n\`${defaultPrefix}\`${userprefixes.filter((p) => p !== defaultPrefix).map((pfx) => `\n\`${pfx}\``).join(' ')}` : ''}`
+				`${userprefixes.length >= 1 ? `\n\n*your global Prefixes are:*\n\`${botConfig.botDefaultPrefix}\`${userprefixes.filter((p) => p !== botConfig.botDefaultPrefix).map((pfx) => `\n\`${pfx}\``).join(' ')}` : ''}`
 			).then(sent => {
 				if (sent.deletable && !sent.deleted) {
 					sent.delete({ timeout: 5000, reason: 'keeping chat clean!' }).catch(e => { if (e) console.log(e.stack) });

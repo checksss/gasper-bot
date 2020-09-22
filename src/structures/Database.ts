@@ -1,6 +1,6 @@
 import { ConnectionManager } from 'typeorm';
 import { GuildSettings } from '../models/GuildSettings';
-import { dbSecrets } from '../config';
+import dbConfig from '../config/dbConfig';
 import { Infractions } from '../models/Infractions';
 import { UserSettings } from '../models/UserSettings';
 
@@ -8,13 +8,13 @@ const connectionManager = new ConnectionManager();
 connectionManager.create({
 	logging: true,
 	synchronize: true,
-	name: dbSecrets.dbName,
-	database: dbSecrets.dbName,
-	password: dbSecrets.dbPass,
+	name: dbConfig.databaseName,
+	database: dbConfig.databaseName,
+	password: dbConfig.databasePassword,
 	type: 'mariadb',
-	host: dbSecrets.dbHost,
-	port: dbSecrets.dbPort,
-	username: dbSecrets.dbUser,
+	host: dbConfig.databaseHostname,
+	port: dbConfig.databasePort,
+	username: dbConfig.databaseUser,
 	entities: [GuildSettings, Infractions, UserSettings],
 });
 

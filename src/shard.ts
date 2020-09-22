@@ -19,11 +19,12 @@
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { ShardingManager } from 'discord.js';
-import { token } from './config';
+import botConfig from './config/botConfig';
 import moment from 'moment';
+import dotenv from 'dotenv';
 
 const shards = new ShardingManager('./dist/src/index.js', {
-  token: token,
+  token: botConfig.botToken,
   totalShards: 'auto'
 });
 

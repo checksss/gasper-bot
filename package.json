@@ -20,12 +20,15 @@
     "validator": "^13.1.1"
   },
   "devDependencies": {
+    "@mrboolean/envconfig": "^3.0.0",
     "@types/common-tags": "^1.8.0",
+    "@types/dotenv": "^8.2.0",
     "@types/moment-duration-format": "^2.2.2",
     "@types/mysql": "^2.15.15",
     "@types/node": "^13.13.21",
     "@types/node-emoji": "^1.8.1",
     "@types/validator": "^13.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^7.9.0",
     "mariadb": "^2.4.2",
     "mysql": "^2.18.1",

@@ -1,7 +1,7 @@
 import { Listener } from "discord-akairo";
 import { Message, TextChannel, PartialMessage } from "discord.js";
 import MessageLogger from '../../logger/Messagelog';
-import { defaultPrefix } from '../../config';
+import botConfig from '../../config/botConfig';
 
 export default class MessageDeleteListener extends Listener {
     public constructor() {
@@ -14,9 +14,9 @@ export default class MessageDeleteListener extends Listener {
 
     public async exec(message: Message | PartialMessage): Promise<any> {
         //@ts-ignore
-        const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
+        const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
         //@ts-ignore
-        const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
+        const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix);
 
         let n: number = 0;
 
