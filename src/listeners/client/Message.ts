@@ -17,9 +17,9 @@ export default class MessageListener extends Listener {
 
 	public async exec(message: Message): Promise<any> {
 		//@ts-ignore
-		const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [defaultPrefix]);
+		const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
 		//@ts-ignore
-		const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix);
+		const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix);
 
 		let n: number = 0;
 
