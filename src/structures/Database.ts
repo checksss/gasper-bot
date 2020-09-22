@@ -6,7 +6,7 @@ import { UserSettings } from '../models/UserSettings';
 
 const connectionManager = new ConnectionManager();
 connectionManager.create({
-	logging: true,
+	logging: false,
 	synchronize: true,
 	name: dbConfig.databaseName,
 	database: dbConfig.databaseName,
