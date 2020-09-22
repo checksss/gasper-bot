@@ -2,7 +2,6 @@ import { Command, Argument } from 'discord-akairo';
 import { Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
-import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class UnbanCommand extends Command {

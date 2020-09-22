@@ -2,7 +2,6 @@ import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { Argument } from 'discord-akairo';
-import botConfig from '../../config/botConfig';
 
 export default class ModCommand extends Command {
     public constructor() {

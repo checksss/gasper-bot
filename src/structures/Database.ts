@@ -3,6 +3,7 @@ import { GuildSettings } from '../models/GuildSettings';
 import dbConfig from '../config/dbConfig';
 import { Infractions } from '../models/Infractions';
 import { UserSettings } from '../models/UserSettings';
+import { ChannelSettings } from '../models/ChannelSettings';
 
 const connectionManager = new ConnectionManager();
 connectionManager.create({
@@ -15,7 +16,7 @@ connectionManager.create({
 	host: dbConfig.databaseHostname,
 	port: dbConfig.databasePort,
 	username: dbConfig.databaseUser,
-	entities: [GuildSettings, Infractions, UserSettings],
+	entities: [GuildSettings, Infractions, UserSettings, ChannelSettings],
 });
 
 export default connectionManager;

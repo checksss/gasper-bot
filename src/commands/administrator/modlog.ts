@@ -1,7 +1,6 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import botConfig from '../../config/botConfig';
 
 export default class ModLogCommand extends Command {
     public constructor() {

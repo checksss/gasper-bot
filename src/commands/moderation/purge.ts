@@ -3,7 +3,6 @@ import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { TextChannel } from 'discord.js';
 import moment from 'moment';
-import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class PurgeCommand extends Command {

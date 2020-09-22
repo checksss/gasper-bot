@@ -10,10 +10,7 @@ import {
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import ms from 'ms';
-import { Channel } from 'discord.js';
-import botConfig from '../../config/botConfig';
 import { Argument } from 'discord-akairo';
-import { AkairoClient } from 'discord-akairo';
 import wh from '../../structures/webHook'
 
 export default class SoftbanCommand extends Command {

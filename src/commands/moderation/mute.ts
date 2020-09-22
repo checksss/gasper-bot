@@ -9,7 +9,6 @@ import {
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment, { duration } from 'moment';
-import botConfig from '../../config/botConfig';
 import ms from 'ms';
 import wh from '../../structures/webHook';
 

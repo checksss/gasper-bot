@@ -1,8 +1,6 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import botConfig from '../../config/botConfig';
-import { chmod } from 'fs';
 import moment from 'moment';
 
 export default class HelpCommand extends Command {

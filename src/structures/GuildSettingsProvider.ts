@@ -3,7 +3,6 @@ import { Guild } from 'discord.js';
 import { Repository, InsertResult, DeleteResult, UpdateResult } from 'typeorm';
 import { GuildSettings } from '../models/GuildSettings';
 import * as _ from 'dot-prop';
-import { stripIndents } from 'common-tags';
 
 export default class GuildSettingsProvider extends Provider {
 	public repo: Repository<any>;

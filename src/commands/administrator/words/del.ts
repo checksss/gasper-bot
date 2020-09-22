@@ -1,6 +1,5 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
-import botConfig from '../../../config/botConfig';
 
 export default class WordCommand extends Command {
 	public constructor() {

@@ -1,6 +1,5 @@
 import { Command, AkairoClient } from "discord-akairo"
 import { Message, MessageEmbed, User, Guild } from "discord.js"
-import botConfig from "../../config/botConfig";
 import moment from "moment";
 import { stripIndents } from "common-tags";
 import { TextChannel } from "discord.js";

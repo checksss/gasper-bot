@@ -1,7 +1,13 @@
 import { stripIndents } from 'common-tags';
 import { Command, Argument } from 'discord-akairo';
-import { MessageReaction, MessageEmbed, User, Message, Channel, TextChannel } from 'discord.js';
-import botConfig from '../../config/botConfig';
+import { 
+    MessageReaction, 
+    MessageEmbed, 
+    User, 
+    Message, 
+    Channel, 
+    TextChannel 
+} from 'discord.js';
 
 export default class SnipbuildCommand extends Command {
     public constructor() {

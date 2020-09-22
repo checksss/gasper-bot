@@ -1,7 +1,6 @@
 import { Command, PrefixSupplier, Argument } from 'discord-akairo';
 import { BitFieldResolvable, PermissionString, Message, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import botConfig from '../../config/botConfig';
 import validator from 'validator';
 
 const bindOptions: string[] = ['mute', 'moderators', 'administrators'];

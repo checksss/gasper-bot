@@ -8,7 +8,6 @@ import {
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
-import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class BanCommand extends Command {
