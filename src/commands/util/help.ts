@@ -28,7 +28,7 @@ export default class HelpCommand extends Command {
     public async exec(message: Message, { command }: { command: Command }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         const authorMember = await message.guild!.members.fetch(message.author!.id);
-        const owners: string[] = botConfig.botOwner;
+        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
         // ------------------------------------
@@ -79,7 +79,7 @@ export default class HelpCommand extends Command {
         var isStaff: boolean = authorMember.roles.cache.filter((r): boolean => staff.includes(r.id)).size !== 0 || staff.includes(authorMember.id);
         // ------------------------------------
         // ---------- DEVS --------------------
-        var isDev: boolean = botConfig.botOwner.includes(message.author.id);
+        var isDev: boolean = owners.includes(message.author.id);
         // ------------------------------------
         // ---------- GUILDOWNER --------------
         var isOwner: boolean = guildOwner.id === message.author.id;

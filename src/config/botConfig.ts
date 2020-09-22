@@ -4,7 +4,7 @@ type BotConfig = {
     clientId: string;
     clientSecret: string;
     botToken: string;
-    botOwner: string;
+    botOwners: string;
     botDefaultPrefix: string;
 }
 

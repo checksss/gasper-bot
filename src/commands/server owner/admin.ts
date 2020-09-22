@@ -38,12 +38,12 @@ export default class AdminCommand extends Command {
 
     public async exec(message: Message, { method, rolemember }: { method: string, rolemember: GuildMember | Role }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-
+        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
 
@@ -58,7 +58,7 @@ export default class AdminCommand extends Command {
         //@ts-ignore
         if (administrators.length === 0) this.client.guildsettings.set(message.guild!, 'config.administrators', defaultAdmins);
 
-        if (message.author.id !== message.guild.ownerID && !botConfig.botOwner.includes(message.author.id)) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
+        if (message.author.id !== message.guild.ownerID && !owners.includes(message.author.id)) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
 
         const clearID: string = rolemember.id;
 

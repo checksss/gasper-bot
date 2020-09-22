@@ -74,7 +74,7 @@ export default class UserInfoCommand extends Command {
             .setColor(member.displayColor)
             .setDescription(`Info about **${user.tag}** (ID: ${member.id})`)
             .addField(
-                '⇒ Member Details',
+                `${this.client.ownerID[0] === user.id ? `⇒ Bot Maintainer Details` : `⇒ Member Details`}`,
                 stripIndents`
                 ${member.nickname == undefined ? '• No nickname' : ` • Nickname: ${member.nickname}`}
 				• Roles ${roleString.length < 896 ? `(${roleSize}): ${roleString}` : `: ${roleSize}`}

@@ -29,7 +29,7 @@ export default class BugreportCommand extends Command {
             guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         }
         const author = await this.client.users.fetch(message.author!.id);
-        const owner: User = await this.client.users.fetch(botConfig.botOwner[0]);
+        const owner: User = await this.client.users.fetch(this.client.ownerID[0]);
         const homeID: string = this.client.guilds.cache.filter((g) => g.ownerID === owner.id && g.name === "Gasper's Playground").map((guild) => guild.id)[0];
         const home: Guild = this.client.guilds.cache.get(homeID);
         const client: AkairoClient = this.client;
@@ -185,7 +185,7 @@ export default class BugreportCommand extends Command {
             let reportChannel = home.channels.cache.get(rcID);
             if (reportChannel && rcID !== '') {
                 let webhook = await wh.get('bugreport', this.client.user, reportChannel as TextChannel);
-                if(!webhook) {
+                if (!webhook) {
                     webhook = await wh.create('bugreport', this.client.user, reportChannel as TextChannel);
                 }
                 return wh.send(webhook, home, this.client.user, submitEmbed);

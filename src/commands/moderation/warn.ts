@@ -1,9 +1,9 @@
 import { Command } from 'discord-akairo';
-import { 
-    Message, 
-    GuildMember, 
-    MessageEmbed, 
-    TextChannel, 
+import {
+    Message,
+    GuildMember,
+    MessageEmbed,
+    TextChannel,
     NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
@@ -59,10 +59,12 @@ export default class WarnCommand extends Command {
 
     public async exec(message: Message, { member, remove, reason }: { member: GuildMember, remove: number, reason: string }): Promise<Message> {
         if (message.deletable && !message.deleted) await message.delete();
+        if (message.deletable && !message.deleted) await message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -75,17 +77,18 @@ export default class WarnCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
+        owners
+            .forEach(o => {
+                if (!moderators.includes(o)) {
+                    moderators.push(o);
+                }
+            })
 
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
@@ -161,7 +164,7 @@ export default class WarnCommand extends Command {
                     }
                 })
                 let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
-                if(!webhook) {
+                if (!webhook) {
                     webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
                 }
                 wh.send(webhook, message.guild, this.client.user, embed);
@@ -239,7 +242,7 @@ export default class WarnCommand extends Command {
                 })
 
                 let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
-                if(!webhook) {
+                if (!webhook) {
                     webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
                 }
                 wh.send(webhook, message.guild, this.client.user, embed);

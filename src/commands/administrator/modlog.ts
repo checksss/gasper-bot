@@ -45,11 +45,12 @@ export default class ModLogCommand extends Command {
 
     public async exec(message: Message, { method, logtype, channel }: { method: string, logtype: string, channel: TextChannel }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
 

@@ -44,6 +44,7 @@ export default class SetPrefixCommand extends Command {
 	public async exec(message: Message, { prefix, method }: { prefix: string, method: string }): Promise<any> {
 		if (message.deletable && !message.deleted) message.delete();
 		const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+		const owners: string[] = this.client.ownerID as string[];
 
 		let guildMethods: string[] = ['server', 'guild', 'local', 'community'];
 		let userMethods: string[] = ['user', 'me', 'member', 'custom', 'private', 'global'];
@@ -53,7 +54,7 @@ export default class SetPrefixCommand extends Command {
 
 			let defaultAdmins: string[] = [guildOwner.id];
 
-			for (var owner in botConfig.botOwner) {
+			for (var owner in owners) {
 				defaultAdmins.push(owner);
 			}
 
@@ -68,7 +69,7 @@ export default class SetPrefixCommand extends Command {
 			const authorMember = await message.guild!.members.fetch(message.author!.id);
 
 			var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-			if (!administrators.includes(message.author!.id) && adminrole.size == 0 && !botConfig.botOwner.includes(message.author.id)) return message.util!.reply('only administrators can use this method.');
+			if (!administrators.includes(message.author!.id) && adminrole.size == 0 && !owners.includes(message.author.id)) return message.util!.reply('only administrators can use this method.');
 			//@ts-ignore
 			this.client.guildsettings.set(message.guild, 'config.prefix', prefix);
 		} else if (userMethods.includes(method)) {

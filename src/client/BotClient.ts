@@ -26,6 +26,7 @@ declare module 'discord-akairo' {
 		guildsettings: GuildSettingsProvider;
 		infractions: InfractionsProvider;
 		usersettings: UserSettingsProvider;
+		ownerID: string[];
 	}
 }
 
@@ -54,7 +55,7 @@ export default class BotClient extends AkairoClient {
 				return userprefixes.concat(botConfig.botDefaultPrefix);
 			}
 		},
-		ignorePermissions: botConfig.botOwner,
+		ignorePermissions: botConfig.botOwners,
 		handleEdits: true,
 		commandUtil: true,
 		commandUtilLifetime: 3e5,

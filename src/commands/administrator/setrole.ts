@@ -122,6 +122,7 @@ export default class SetRoleCommand extends Command {
 
     public async exec(message: Message, { method, option, role, rolename }: { method: string, option: string, role: Role, rolename: string }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
         if (option === 'administrators') {
             if (message.author.id !== guildOwner.id) {
                 return message.util!.reply(`${message.author}, only the server owner is allowed to manage administrators!`).then(m => m.delete({ timeout: 5000 }));
@@ -137,7 +138,7 @@ export default class SetRoleCommand extends Command {
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
 
@@ -150,14 +151,14 @@ export default class SetRoleCommand extends Command {
         })
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
         //@ts-ignore
         if (moderators.length === 0) await this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner.forEach(o => {
+        owners.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

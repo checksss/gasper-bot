@@ -1,9 +1,9 @@
 import { Command } from 'discord-akairo';
-import { 
-    GuildMember, 
-    Message, 
-    MessageEmbed, 
-    TextChannel, 
+import {
+    GuildMember,
+    Message,
+    MessageEmbed,
+    TextChannel,
     NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
@@ -44,9 +44,10 @@ export default class BanCommand extends Command {
     public async exec(message: Message, { member, reason }: { member: GuildMember, reason: string }): Promise<Message | Message[]> {
         if (message.deletable && !message.deleted) message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -59,13 +60,13 @@ export default class BanCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner.forEach(o => {
+        owners.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }
@@ -121,11 +122,11 @@ export default class BanCommand extends Command {
                     **Reason:** ${reason ? reason : 'No reason'}
                 `)
                 .setFooter(`Member Kicked by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
-                let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
-                if(!webhook) {
-                    webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
-                }
-                wh.send(webhook, message.guild, this.client.user, embed);
+            let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
+            if (!webhook) {
+                webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
+            }
+            wh.send(webhook, message.guild, this.client.user, embed);
         }
 
 

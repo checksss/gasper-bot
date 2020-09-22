@@ -71,9 +71,10 @@ export default class MuteCommand extends Command {
     public async exec(message: Message, { member, time, reason }: { member: GuildMember, time: string, reason: string }): Promise<Message> {
         if (message.deletable && !message.deleted) message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -86,13 +87,13 @@ export default class MuteCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner
+        owners
             .forEach(o => {
                 if (!moderators.includes(o)) {
                     moderators.push(o);

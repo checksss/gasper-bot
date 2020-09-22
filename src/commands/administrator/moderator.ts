@@ -38,11 +38,12 @@ export default class ModCommand extends Command {
 
     public async exec(message: Message, { method, rolemember }: { method: string, rolemember: GuildMember | Role }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
+        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
 
@@ -61,7 +62,7 @@ export default class ModCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
 
@@ -69,7 +70,7 @@ export default class ModCommand extends Command {
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
         //@ts-ignore
         if (moderators.length === 0) this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner.forEach(o => {
+        owners.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

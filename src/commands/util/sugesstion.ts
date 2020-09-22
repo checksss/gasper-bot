@@ -29,7 +29,7 @@ export default class SuggestionsCommand extends Command {
             guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         }
         const author = await this.client.users.fetch(message.author!.id);
-        const owner: User = await this.client.users.fetch(botConfig.botOwner[0]);
+        const owner: User = await this.client.users.fetch(this.client.ownerID[0]);
         const homeID: string = this.client.guilds.cache.filter((g) => g.ownerID === owner.id && g.name === "Gasper's Playground").map((guild) => guild.id)[0];
         const home: Guild = this.client.guilds.cache.get(homeID);
         const client: AkairoClient = this.client;
