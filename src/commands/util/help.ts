@@ -28,12 +28,13 @@ export default class HelpCommand extends Command {
     public async exec(message: Message, { command }: { command: Command }): Promise<Message | Message[]> {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         const authorMember = await message.guild!.members.fetch(message.author!.id);
+        const owners: string[] = botConfig.botOwner;
         if (message.deletable && !message.deleted) message.delete();
 
         // ------------------------------------
         // ---------- ADMINS ------------------
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -48,12 +49,12 @@ export default class HelpCommand extends Command {
         // ---------- MODS --------------------
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in botConfig.botOwner) {
+        for (var owner in owners) {
             defaultMods.push(owner);
         }
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        botConfig.botOwner.forEach(o => {
+        owners.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

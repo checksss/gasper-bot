@@ -4,7 +4,7 @@ type BotConfig = {
     clientId: string;
     clientSecret: string;
     botToken: string;
-    botOwner: string[];
+    botOwner: string;
     botDefaultPrefix: string;
 }
 
@@ -26,7 +26,7 @@ const botConfig = <BotConfig>describe({
     },
     botOwners: {
         name: "BOT_OWNER",
-        type: Type.ARRAY,
+        type: Type.STRING,
         isRequired: true
     },
     botDefaultPrefix: {

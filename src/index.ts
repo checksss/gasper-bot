@@ -23,7 +23,8 @@ import BotClient from './client/BotClient';
 import dotenv from 'dotenv';
 
 let token = botConfig.botToken
+let owners: string[] = botConfig.botOwner.split(",");
 
-const client = new BotClient({ token });
+const client = new BotClient({ token, owners });
 
 client.start();
