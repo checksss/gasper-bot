@@ -1,8 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
-import { defaultPrefix } from '../../config';
+import botConfig from '../../config/botConfig';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
 
 export default class SetPrefixCommand extends Command {
 	public constructor() {
@@ -54,7 +53,7 @@ export default class SetPrefixCommand extends Command {
 
 			let defaultAdmins: string[] = [guildOwner.id];
 
-			for (var owner in owners) {
+			for (var owner in botConfig.botOwner) {
 				defaultAdmins.push(owner);
 			}
 
@@ -69,7 +68,7 @@ export default class SetPrefixCommand extends Command {
 			const authorMember = await message.guild!.members.fetch(message.author!.id);
 
 			var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-			if (!administrators.includes(message.author!.id) && adminrole.size == 0 && !owners.includes(message.author.id)) return message.util!.reply('only administrators can use this method.');
+			if (!administrators.includes(message.author!.id) && adminrole.size == 0 && !botConfig.botOwner.includes(message.author.id)) return message.util!.reply('only administrators can use this method.');
 			//@ts-ignore
 			this.client.guildsettings.set(message.guild, 'config.prefix', prefix);
 		} else if (userMethods.includes(method)) {
@@ -119,7 +118,7 @@ export default class SetPrefixCommand extends Command {
 				});
 		} else {
 			//@ts-ignore
-			const pfx: string[] = message.guild ? [this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix)] : this.client.usersettings.get(message.author, 'config.prefixes', []);
+			const pfx: string[] = message.guild ? [this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix)] : this.client.usersettings.get(message.author, 'config.prefixes', []);
 			return message.util!.send(stripIndents`
 			That method doesn't exist on \`setprefix\`;
 			Try \`${message.guild ? pfx : pfx[0]}help setprefix\` for help.`);

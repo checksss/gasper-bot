@@ -1,6 +1,6 @@
 import { Command, AkairoClient } from "discord-akairo"
 import { Message, MessageEmbed, User, Guild } from "discord.js"
-import { owners } from "../../config";
+import botConfig from "../../config/botConfig";
 import moment from "moment";
 import { stripIndents } from "common-tags";
 import { TextChannel } from "discord.js";
@@ -29,7 +29,7 @@ export default class BugreportCommand extends Command {
             guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         }
         const author = await this.client.users.fetch(message.author!.id);
-        const owner: User = await this.client.users.fetch(owners[0]);
+        const owner: User = await this.client.users.fetch(botConfig.botOwner[0]);
         const homeID: string = this.client.guilds.cache.filter((g) => g.ownerID === owner.id && g.name === "Gasper's Playground").map((guild) => guild.id)[0];
         const home: Guild = this.client.guilds.cache.get(homeID);
         const client: AkairoClient = this.client;
@@ -52,7 +52,6 @@ export default class BugreportCommand extends Command {
         let responses = await msg.channel.awaitMessages((r: Message) => r.author!.id === author!.id, { max: 1, time: 240000 });
         if (!responses || responses.size < 1) return msg.edit('Request timed out.').then(m => m.delete({ timeout: 10000 }));
         answers.push(responses.first().content);
-
 
         description = stripIndents`
         **Could you explain\*, what you've done in that moment?**

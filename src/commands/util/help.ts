@@ -1,8 +1,9 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 import { chmod } from 'fs';
+import moment from 'moment';
 
 export default class HelpCommand extends Command {
     public constructor() {
@@ -32,7 +33,7 @@ export default class HelpCommand extends Command {
         // ------------------------------------
         // ---------- ADMINS ------------------
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -47,12 +48,12 @@ export default class HelpCommand extends Command {
         // ---------- MODS --------------------
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
+        botConfig.botOwner.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }
@@ -77,7 +78,7 @@ export default class HelpCommand extends Command {
         var isStaff: boolean = authorMember.roles.cache.filter((r): boolean => staff.includes(r.id)).size !== 0 || staff.includes(authorMember.id);
         // ------------------------------------
         // ---------- DEVS --------------------
-        var isDev: boolean = owners.includes(message.author.id);
+        var isDev: boolean = botConfig.botOwner.includes(message.author.id);
         // ------------------------------------
         // ---------- GUILDOWNER --------------
         var isOwner: boolean = guildOwner.id === message.author.id;
@@ -96,6 +97,8 @@ export default class HelpCommand extends Command {
                 For additional info on a command, type \`${prefix[rnd]}help <command>\`
             `);
 
+            var cmdSize: number = 0;
+
             for (const category of this.handler.categories.values()) {
                 var categoryName: string = category.id.replace(/(\b\w)/gi, (lc): string => lc.toUpperCase());
 
@@ -105,20 +108,59 @@ export default class HelpCommand extends Command {
                 var staffCats: string[] = ['Staff', 'Info', 'Util']
                 var pubCats: string[] = ['Info', 'Util'];
 
+                var catSize: number;
+
                 if (isDev && categoryName !== 'Default') {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
+                    cmdSize += catSize;
                 } else if (isOwner && !isDev && ownerCats.includes(categoryName)) {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
+                    cmdSize += catSize;
                 } else if (isAdmin && !isOwner && !isDev && adminCats.includes(categoryName)) {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
+                    cmdSize += catSize;
                 } else if (isMod && !isAdmin && !isOwner && !isDev && modCats.includes(categoryName)) {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
                 } else if (isStaff && !isMod && !isAdmin && !isOwner && !isDev && staffCats.includes(categoryName)) {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
+                    cmdSize += catSize;
                 } else if (!isDev && !isOwner && !isAdmin && !isMod && !isStaff && pubCats.includes(categoryName)) {
-                    embed.addField(`⇒ ${categoryName}`, `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`);
+                    catSize = category.filter((cmd): boolean => cmd.aliases.length > 0).size
+                    embed.addField(
+                        `⇒ ${categoryName} (${catSize} commands)`,
+                        `${category.filter((cmd): boolean => cmd.aliases.length > 0).map((cmd): string => `\`${cmd.aliases[0]}\``).join(' | ')}`
+                    );
+                    cmdSize += catSize;
                 }
             }
+
+            let now: moment.Moment = moment.utc(Date.now());
+            let nowDay: string = now.format('DD');
+
+            embed.setFooter(
+                `${cmdSize} total commands | requested by ${message.author.tag} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+                `${message.author.displayAvatarURL({ format: 'png', dynamic: true })}`
+            )
 
             return message.util!.send(embed);
         }

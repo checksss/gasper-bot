@@ -1,6 +1,6 @@
 import { Command, AkairoClient } from "discord-akairo"
 import { Message, MessageEmbed, User, Guild } from "discord.js"
-import { owners } from "../../config";
+import botConfig from "../../config/botConfig";
 import moment from "moment";
 import { stripIndents } from "common-tags";
 import { TextChannel } from "discord.js";
@@ -29,7 +29,7 @@ export default class SuggestionsCommand extends Command {
             guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         }
         const author = await this.client.users.fetch(message.author!.id);
-        const owner: User = await this.client.users.fetch(owners[0]);
+        const owner: User = await this.client.users.fetch(botConfig.botOwner[0]);
         const homeID: string = this.client.guilds.cache.filter((g) => g.ownerID === owner.id && g.name === "Gasper's Playground").map((guild) => guild.id)[0];
         const home: Guild = this.client.guilds.cache.get(homeID);
         const client: AkairoClient = this.client;
@@ -83,7 +83,7 @@ export default class SuggestionsCommand extends Command {
         let suggestionChannel = home.channels.cache.get(scID);
         if (suggestionChannel && scID !== '') {
             let webhook = await wh.get('suggestion', this.client.user, suggestionChannel as TextChannel);
-            if(!webhook) {
+            if (!webhook) {
                 webhook = await wh.create('suggestion', this.client.user, suggestionChannel as TextChannel);
             }
             wh.send(webhook, home, this.client.user, submitEmbed);

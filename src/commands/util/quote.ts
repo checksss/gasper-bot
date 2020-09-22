@@ -181,9 +181,9 @@ export default class QuoteCommand extends Command {
       }
 
       (message.channel as TextChannel).fetchWebhooks().then(async hooks => {
-        let webhook = await wh.get('mute', this.client.user, message.channel as TextChannel);
-        if(!webhook) {
-            webhook = await wh.create('mute', this.client.user, message.channel as TextChannel);
+        let webhook = await wh.get('quotes', this.client.user, message.channel as TextChannel);
+        if (!webhook) {
+          webhook = await wh.create('quotes', this.client.user, message.channel as TextChannel);
           sendWebhook(webhook, nembed, msg);
         } else {
           sendWebhook(webhook, nembed, msg);
