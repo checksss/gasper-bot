@@ -210,7 +210,7 @@ export default class StatsCommand extends Command {
 				url: this.client.user!.displayAvatarURL()
 			},
 			footer: {
-				text: `© 2020 ${owner.tag}`
+				text: `✧ © 2020 ${owner.tag} ✧`
 			}
 		})
 

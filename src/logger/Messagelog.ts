@@ -23,21 +23,21 @@ export default class MessageLogger {
         const embed = new MessageEmbed({
             color: msg.member.displayHexColor,
             author: {
-                name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
+                name: `${msg.author.tag} ✧ ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**New Message** | ' + msg.id,
+            title: '**New Message** ✧ ' + msg.id,
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
             },
             description: `${msg.content}\n\n**[Jump to message!](https://discord.com/channels/${msg.guild.id}/${msg.channel.id}/${msg.id})**`,
             footer: {
-                text: `#${(msg.channel as TextChannel).name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+                text: `in: #${(msg.channel as TextChannel).name} ✧ ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
                 iconURL: msg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
 
         let webhook = await wh.get('sendmessage-log', log.guild.me.user, log);
-        if(!webhook) {
+        if (!webhook) {
             webhook = await wh.create('sendmessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
@@ -63,9 +63,9 @@ export default class MessageLogger {
         }
         const embed = new MessageEmbed({
             author: {
-                name: `${oldMsg.author.tag} | ${newMsg.member.displayName} (${oldMsg.author.id})`
+                name: `${oldMsg.author.tag} ✧ ${newMsg.member.displayName} (${oldMsg.author.id})`
             },
-            title: '**Message edited** | ' + oldMsg.id,
+            title: '**Message edited** ✧ ' + oldMsg.id,
             //color: newMsg.member.displayHexColor,
             thumbnail: {
                 url: newMsg.author.displayAvatarURL({ format: 'png', dynamic: true })
@@ -92,13 +92,13 @@ export default class MessageLogger {
                 }
             ],
             footer: {
-                text: `#${(newMsg.channel as TextChannel).name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+                text: `in: #${(newMsg.channel as TextChannel).name} ✧ ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
                 iconURL: newMsg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
 
         let webhook = await wh.get('editmessage-log', log.guild.me.user, log);
-        if(!webhook) {
+        if (!webhook) {
             webhook = await wh.create('editmessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
@@ -124,9 +124,9 @@ export default class MessageLogger {
 
         const embed = new MessageEmbed({
             author: {
-                name: `${msg.author.tag} | ${msg.member.displayName} (${msg.author.id})`
+                name: `${msg.author.tag} ✧ ${msg.member.displayName} (${msg.author.id})`
             },
-            title: '**Deleted Message** | ' + msg.id,
+            title: '**Deleted Message** ✧ ' + msg.id,
             color: msg.member.displayHexColor,
             thumbnail: {
                 url: msg.author.displayAvatarURL({ format: 'png', dynamic: true })
@@ -136,13 +136,13 @@ export default class MessageLogger {
             
             `,
             footer: {
-                text: `#${(msg.channel as TextChannel).name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+                text: `in: #${(msg.channel as TextChannel).name} ✧ ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
                 iconURL: msg.guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
 
         let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
-        if(!webhook) {
+        if (!webhook) {
             webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
@@ -169,7 +169,7 @@ export default class MessageLogger {
         const embed = new MessageEmbed({
             color: execMember.displayHexColor,
             author: {
-                name: `${executor.tag} | ${execMember.displayName} (${executor.id})`
+                name: `${executor.tag} ✧ ${execMember.displayName} (${executor.id})`
             },
             title: '**Bulk Delete**',
             thumbnail: {
@@ -179,13 +179,13 @@ export default class MessageLogger {
             **${amount} ${amount > 1 ? 'Messages were' : 'Message was'} deleted**
             `,
             footer: {
-                text: `#${channel.name} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+                text: `in: #${channel.name} ✧ ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
                 iconURL: guild.me.user.displayAvatarURL({ format: 'png', dynamic: true })
             }
         });
 
         let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
-        if(!webhook) {
+        if (!webhook) {
             webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);

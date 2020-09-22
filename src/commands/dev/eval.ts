@@ -48,28 +48,28 @@ export default class EvalCommand extends Command {
 
     public async exec(message: Discord.Message, { code, noreturn }: { code: string, noreturn: boolean }): Promise<Discord.Message | Discord.Message[] | Promise<Discord.Message | Discord.Message[]>[]> {
 
-        this.client.channels.fetch('716123896327438418')
-            .then(channel => {
-                (channel as Discord.TextChannel).messages.fetch('743003490799976529')
-                    .then(message => {
-                        message.pin().catch(e => {
-                            if (e) {
-                                console.log(e.stack);
-                                return e;
-                            }
-                        })
-                    }).catch(e => {
-                        if (e) {
-                            console.log(e.stack);
-                            return e;
-                        }
-                    })
-            }).catch(e => {
-                if (e) {
-                    console.log(e.stack);
-                    return e;
-                }
-            })
+        // this.client.channels.fetch('716123896327438418')
+        //     .then(channel => {
+        //         (channel as Discord.TextChannel).messages.fetch('743003490799976529')
+        //             .then(message => {
+        //                 message.pin().catch(e => {
+        //                     if (e) {
+        //                         console.log(e.stack);
+        //                         return e;
+        //                     }
+        //                 })
+        //             }).catch(e => {
+        //                 if (e) {
+        //                     console.log(e.stack);
+        //                     return e;
+        //                 }
+        //             })
+        //     }).catch(e => {
+        //         if (e) {
+        //             console.log(e.stack);
+        //             return e;
+        //         }
+        //     })
 
         await message.delete().catch(e => {
             if (e) console.log(e.stack);

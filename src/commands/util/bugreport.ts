@@ -206,14 +206,14 @@ const makeEmbed = async function (message: Message, client: AkairoClient, descri
 
     const embed = new MessageEmbed({
         author: {
-            name: `${client.user.tag} | BUGREPORT`,
+            name: `${client.user.tag} ✧ BUGREPORT`,
             icon_url: client.user.displayAvatarURL({ format: 'png', dynamic: true }),
             url: `https://discord.gasper.fun`
         },
         color: message.guild ? message.member.displayHexColor : Math.floor(Math.random() * 12777214) + 1,
         description: `${description}`,
         footer: {
-            text: `${pageNr} | ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
+            text: `${pageNr} ✧ ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`,
             iconURL: message.author.displayAvatarURL({ format: 'png', dynamic: true })
         }
     });
@@ -228,7 +228,7 @@ const makeReportEmbed = async function (message: Message, client: AkairoClient, 
 
     const embed = new MessageEmbed({
         author: {
-            name: `${user.tag} | BUGREPORT`,
+            name: `${user.tag} ✧ BUGREPORT`,
             icon_url: user.displayAvatarURL({ format: 'png', dynamic: true }),
             url: `${inviteURL !== '' ? inviteURL : 'https://discord.gasper.fun'}`
         },

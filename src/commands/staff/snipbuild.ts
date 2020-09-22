@@ -161,7 +161,7 @@ async function MainMenu(channel: TextChannel, user: User, client: User, method: 
         ` : `Snippet sent.`}`}`}`,
         footer: {
             icon_url: client.displayAvatarURL({ format: 'png', dynamic: true }),
-            text: `Snipbuild Generator | ${method.toUpperCase()} | ${name}`
+            text: `Snipbuild Generator ✧ ${method.toUpperCase()} | ${name}`
         }
     })
 
@@ -204,7 +204,7 @@ async function titleManager(msg: Message, method: string, name: string, user: Us
         `}`,
         footer: {
             icon_url: client.displayAvatarURL({ format: 'png', dynamic: true }),
-            text: `Snipbuild Generator | ${method.toUpperCase()} | ${name}`
+            text: `Snipbuild Generator ✧ ${method.toUpperCase()} | ${name}`
         }
     })
 }
