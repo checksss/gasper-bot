@@ -36,9 +36,9 @@ export default class MessageLogger {
             }
         });
 
-        let webhook = await wh.get('sendmessage', log.guild.me.user, log);
+        let webhook = await wh.get('sendmessage-log', log.guild.me.user, log);
         if(!webhook) {
-            webhook = await wh.create('sendmessage', log.guild.me.user, log);
+            webhook = await wh.create('sendmessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
@@ -97,9 +97,9 @@ export default class MessageLogger {
             }
         });
 
-        let webhook = await wh.get('editmessage', log.guild.me.user, log);
+        let webhook = await wh.get('editmessage-log', log.guild.me.user, log);
         if(!webhook) {
-            webhook = await wh.create('editmessage', log.guild.me.user, log);
+            webhook = await wh.create('editmessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
@@ -141,9 +141,9 @@ export default class MessageLogger {
             }
         });
 
-        let webhook = await wh.get('deletemessage', log.guild.me.user, log);
+        let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
         if(!webhook) {
-            webhook = await wh.create('deletemessage', log.guild.me.user, log);
+            webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
@@ -184,9 +184,9 @@ export default class MessageLogger {
             }
         });
 
-        let webhook = await wh.get('bulkdeletemessage', log.guild.me.user, log);
+        let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
         if(!webhook) {
-            webhook = await wh.create('bulkdeletemessage', log.guild.me.user, log);
+            webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
         }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }

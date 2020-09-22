@@ -16,7 +16,7 @@ export default {
         let webhook: Webhook =
             await channel
                 .createWebhook(
-                    `${channel.name}-${client.username.toLowerCase()}-${whType}-log`,
+                    `${client.username.toLowerCase()}-${whType}`,
                     {
                         avatar: client.displayAvatarURL({ format: 'png', dynamic: true }),
                         reason: `Logging ${whType} enabled in this channel.`
@@ -28,14 +28,14 @@ export default {
                             .filter(w => {
                                 var owner: User = w.owner as User;
                                 var whClient = w.client
-                                if (!owner || owner.id !== client.id) return whClient.user.id === client.id;
+                                if (!owner && owner.id !== client.id) return whClient.user.id === client.id;
                                 return owner.id === client.id
                             })
                             .first()
                             .delete('Webhook-Limit reached!');
                         return await channel
                             .createWebhook(
-                                `${channel.name}-${client.username.toLowerCase()}-${whType}-log`,
+                                `${client.username.toLowerCase()}-${whType}`,
                                 {
                                     avatar: client.displayAvatarURL({ format: 'png', dynamic: true }),
                                     reason: `Logging ${whType} enabled in this channel.`
@@ -53,7 +53,7 @@ export default {
         let webhook: Webhook =
             (await channel
                 .fetchWebhooks())
-                .filter(w => w.name === `${channel.name}-${client.username.toLowerCase()}-${whType}-log`)
+                .filter(w => w.name === `${client.username.toLowerCase()}-${whType}`)
                 .first();
         return webhook;
     },

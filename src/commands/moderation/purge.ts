@@ -122,9 +122,9 @@ export default class PurgeCommand extends Command {
                             if (message.guild.channels.cache.has(modlog)) {
 
                                 let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
-                                let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
+                                let webhook = await wh.get('mod-log', this.client.user, logchannel as TextChannel);
                                 if (!webhook) {
-                                    webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
+                                    webhook = await wh.create('mod-log', this.client.user, logchannel as TextChannel);
                                 }
                                 wh.send(webhook, message.guild, this.client.user, embed);
                             };
@@ -138,7 +138,7 @@ export default class PurgeCommand extends Command {
                         (message.channel as TextChannel).bulkDelete(messages)
                     });
 
-                (message.channel as TextChannel).bulkDelete(amount, true).then((deleted) => {
+                (message.channel as TextChannel).bulkDelete(amount, true).then(async (deleted) => {
                     const embed = new MessageEmbed({
                         author: {
                             name: `#${(message.channel as TextChannel).name}`,
@@ -160,7 +160,12 @@ export default class PurgeCommand extends Command {
                     });
                     if (message.guild.channels.cache.has(modlog)) {
 
-                        (message.guild.channels.cache.get(modlog) as TextChannel).send(embed);
+                        let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
+                        let webhook = await wh.get('mod-log', this.client.user, logchannel as TextChannel);
+                        if (!webhook) {
+                            webhook = await wh.create('mod-log', this.client.user, logchannel as TextChannel);
+                        }
+                        wh.send(webhook, message.guild, this.client.user, embed);
                     };
                 });
             };

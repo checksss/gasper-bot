@@ -160,9 +160,9 @@ export default class WarnCommand extends Command {
                         text: `Member Unwarned by ${authorMember.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`
                     }
                 })
-                let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
+                let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
                 if(!webhook) {
-                    webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
+                    webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
                 }
                 wh.send(webhook, message.guild, this.client.user, embed);
             }
@@ -238,9 +238,9 @@ export default class WarnCommand extends Command {
                     }
                 })
 
-                let webhook = await wh.get('warn', this.client.user, logchannel as TextChannel);
+                let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
                 if(!webhook) {
-                    webhook = await wh.create('warn', this.client.user, logchannel as TextChannel);
+                    webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
                 }
                 wh.send(webhook, message.guild, this.client.user, embed);
             }

@@ -250,9 +250,9 @@ export default class MuteCommand extends Command {
                 }
             })
 
-            let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
+            let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
             if (!webhook) {
-                webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
+                webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
             }
             wh.send(webhook, message.guild, this.client.user, embed);
         }

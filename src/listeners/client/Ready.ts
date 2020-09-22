@@ -150,9 +150,9 @@ export default class ReadyListener extends Listener {
 								`)
 											.setFooter(`User Unmuted by ${client.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-										let webhook = await wh.get('mute', g.me.user, logchannel as TextChannel);
+										let webhook = await wh.get('infractions-log', g.me.user, logchannel as TextChannel);
 										if (!webhook) {
-											webhook = await wh.create('mute', g.me.user, logchannel as TextChannel);
+											webhook = await wh.create('infractions-log', g.me.user, logchannel as TextChannel);
 										}
 										wh.send(webhook, g, g.me.user, embed);
 									}
@@ -215,9 +215,9 @@ export default class ReadyListener extends Listener {
 									`)
 										.setFooter(`User Unbanned by ${client.user.tag} || ${now.format(`${parseInt(nowDay) === 1 ? `${nowDay}[st]` : `${parseInt(nowDay) === 2 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 3 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 21 ? `${nowDay}[st]` : `${parseInt(nowDay) === 22 ? `${nowDay}[nd]` : `${parseInt(nowDay) === 23 ? `${nowDay}[rd]` : `${parseInt(nowDay) === 31 ? `${nowDay}[st]` : `${nowDay}[th]`}`}`}`}`}`}`} MMMM YYYY [|] HH:mm:ss [UTC]`)}`);
 
-									let webhook = await wh.get('ban', g.me.user, logchannel as TextChannel);
+									let webhook = await wh.get('infractions-log', g.me.user, logchannel as TextChannel);
 									if (!webhook) {
-										webhook = await wh.create('ban', g.me.user, logchannel as TextChannel);
+										webhook = await wh.create('infractions-log', g.me.user, logchannel as TextChannel);
 									}
 									wh.send(webhook, g, g.me.user, embed);
 								}
