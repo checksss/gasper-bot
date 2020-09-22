@@ -1,6 +1,6 @@
 import { Command, Argument } from 'discord-akairo';
 import { Message, Channel, TextChannel, NewsChannel } from 'discord.js';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 
 export default class SayCommand extends Command {
     public constructor() {
@@ -42,7 +42,7 @@ export default class SayCommand extends Command {
         if (message.author.id !== this.client.ownerID && !message.guild.channels.cache.has(channel.id)) return message.reply('I don\'t think that other servers will like this.\n' + (channel as TextChannel).name)
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -55,17 +55,18 @@ export default class SayCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
+        botConfig.botOwner
+            .forEach(o => {
+                if (!moderators.includes(o)) {
+                    moderators.push(o);
+                }
+            })
 
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 

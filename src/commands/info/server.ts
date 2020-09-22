@@ -1,7 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import * as moment from 'moment';
+import moment from 'moment';
 import 'moment-duration-format';
 import { TextChannel } from 'discord.js';
 

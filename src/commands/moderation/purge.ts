@@ -3,7 +3,7 @@ import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { TextChannel } from 'discord.js';
 import moment from 'moment';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class PurgeCommand extends Command {
@@ -44,7 +44,7 @@ export default class PurgeCommand extends Command {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -57,17 +57,18 @@ export default class PurgeCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
+        botConfig.botOwner
+            .forEach(o => {
+                if (!moderators.includes(o)) {
+                    moderators.push(o);
+                }
+            })
 
         const clientMember = await message.guild!.members.fetch(this.client.user!.id);
         const authorMember = await message.guild!.members.fetch(message.author!.id);
@@ -122,7 +123,7 @@ export default class PurgeCommand extends Command {
 
                                 let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
                                 let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
-                                if(!webhook) {
+                                if (!webhook) {
                                     webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
                                 }
                                 wh.send(webhook, message.guild, this.client.user, embed);

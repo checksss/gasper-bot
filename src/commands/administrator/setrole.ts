@@ -1,7 +1,7 @@
 import { Command, PrefixSupplier, Argument } from 'discord-akairo';
 import { BitFieldResolvable, PermissionString, Message, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 import validator from 'validator';
 
 const bindOptions: string[] = ['mute', 'moderators', 'administrators'];
@@ -137,7 +137,7 @@ export default class SetRoleCommand extends Command {
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
 
@@ -150,14 +150,14 @@ export default class SetRoleCommand extends Command {
         })
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
         //@ts-ignore
         if (moderators.length === 0) await this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
+        botConfig.botOwner.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

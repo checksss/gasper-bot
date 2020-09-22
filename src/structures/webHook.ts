@@ -21,7 +21,28 @@ export default {
                         avatar: client.displayAvatarURL({ format: 'png', dynamic: true }),
                         reason: `Logging ${whType} enabled in this channel.`
                     }
-                )
+                ).catch(async e => {
+                    if (e) {
+                        (await channel
+                            .fetchWebhooks())
+                            .filter(w => {
+                                var owner: User = w.owner as User;
+                                var whClient = w.client
+                                if (!owner || owner.id !== client.id) return whClient.user.id === client.id;
+                                return owner.id === client.id
+                            })
+                            .first()
+                            .delete('Webhook-Limit reached!');
+                        return await channel
+                            .createWebhook(
+                                `${channel.name}-${client.username.toLowerCase()}-${whType}-log`,
+                                {
+                                    avatar: client.displayAvatarURL({ format: 'png', dynamic: true }),
+                                    reason: `Logging ${whType} enabled in this channel.`
+                                }
+                            )
+                    }
+                })
         return webhook;
     },
     async get(

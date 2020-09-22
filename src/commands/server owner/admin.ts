@@ -1,7 +1,7 @@
 import { Command, PrefixSupplier, Argument } from 'discord-akairo';
 import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 
 export default class AdminCommand extends Command {
     public constructor() {
@@ -43,7 +43,7 @@ export default class AdminCommand extends Command {
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
 
@@ -58,7 +58,7 @@ export default class AdminCommand extends Command {
         //@ts-ignore
         if (administrators.length === 0) this.client.guildsettings.set(message.guild!, 'config.administrators', defaultAdmins);
 
-        if (message.author.id !== message.guild.ownerID && !owners.includes(message.author.id)) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
+        if (message.author.id !== message.guild.ownerID && !botConfig.botOwner.includes(message.author.id)) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
 
         const clearID: string = rolemember.id;
 

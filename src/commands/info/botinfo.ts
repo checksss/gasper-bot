@@ -1,5 +1,12 @@
-import { Command, AkairoClient } from 'discord-akairo';
-import { Message, MessageEmbed, User } from 'discord.js';
+import {
+	Command,
+	AkairoClient
+} from 'discord-akairo';
+import {
+	Message,
+	MessageEmbed,
+	User
+} from 'discord.js';
 import * as Discord from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
@@ -8,9 +15,7 @@ import {
 	version,
 	description,
 } from '../../../package.json';
-import { defaultPrefix } from '../../config';
-import { TextChannel } from 'discord.js';
-import { strip } from 'node-emoji';
+import botConfig from '../../config/botConfig';
 
 export default class StatsCommand extends Command {
 	public constructor() {
@@ -124,7 +129,7 @@ export default class StatsCommand extends Command {
 					• Shard: ${message.guild.shardID + 1} | ${this.client.shard.count}
 					• Discord.js: v${Discord.version}
 					• NodeJS: ${process.version/*@ts-ignore*/}
-					• Local Prefix: ${this.client.guildsettings.get(message.guild, 'config.prefix', defaultPrefix)}
+					• Local Prefix: ${this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix)}
 					• Uptime: ${moment.duration(this.client.uptime!).format('d[d ]h[h ]m[m ]s[s ]')}
 					• Memory Usage: ${memUsed}MB/${memAlloc}MB (${memPercent}%)
 					`,

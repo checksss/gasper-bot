@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
-import { owners } from '../../../config';
+import botConfig from '../../../config/botConfig';
 
 export default class WordCommand extends Command {
 	public constructor() {
@@ -30,7 +30,7 @@ export default class WordCommand extends Command {
 
 		let defaultAdmins: string[] = [guildOwner.id];
 
-		for (var owner in owners) {
+		for (var owner in botConfig.botOwner) {
 			defaultAdmins.push(owner);
 		}
 

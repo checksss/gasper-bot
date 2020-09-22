@@ -1,7 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, GuildEmoji, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import * as moment from 'moment';
+import moment from 'moment';
 import * as emojis from 'node-emoji';
 import punycode from 'punycode';
 

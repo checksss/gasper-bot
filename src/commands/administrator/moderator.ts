@@ -2,7 +2,7 @@ import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { Argument } from 'discord-akairo';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 
 export default class ModCommand extends Command {
     public constructor() {
@@ -42,7 +42,7 @@ export default class ModCommand extends Command {
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
 
@@ -61,7 +61,7 @@ export default class ModCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
 
@@ -69,7 +69,7 @@ export default class ModCommand extends Command {
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
         //@ts-ignore
         if (moderators.length === 0) this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
+        botConfig.botOwner.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

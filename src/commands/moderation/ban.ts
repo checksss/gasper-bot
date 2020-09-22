@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 import wh from '../../structures/webHook'
 
 export default class BanCommand extends Command {
@@ -54,7 +54,7 @@ export default class BanCommand extends Command {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -67,13 +67,13 @@ export default class BanCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
+        botConfig.botOwner.forEach(o => {
             if (!moderators.includes(o)) {
                 moderators.push(o);
             }

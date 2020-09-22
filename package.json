@@ -10,14 +10,14 @@
     "discord.js": "^12.3.1",
     "dot-prop": "^5.3.0",
     "memory": "*",
-    "moment": "^2.28.0",
+    "moment": "^2.29.0",
     "moment-duration-format": "^2.3.2",
     "ms": "^2.1.2",
     "node-emoji": "^1.10.0",
     "sequelize": "^5.22.3",
     "typeorm": "^0.2.26",
     "util": "^0.12.3",
-    "validator": "^13.1.1"
+    "validator": "^13.1.17"
   },
   "devDependencies": {
     "@mrboolean/envconfig": "^3.0.0",
@@ -32,7 +32,7 @@
     "eslint": "^7.9.0",
     "mariadb": "^2.4.2",
     "mysql": "^2.18.1",
-    "mysql2": "^2.2.1",
+    "mysql2": "^2.2.5",
     "prettier": "^2.1.2",
     "reflect-metadata": "^0.1.13",
     "sqlite": "^4.0.14",

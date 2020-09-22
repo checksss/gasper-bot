@@ -1,7 +1,6 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
 
 export default class DevLogCommand extends Command {
     public constructor() {

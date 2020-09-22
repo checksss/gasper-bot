@@ -1,7 +1,7 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 
 export default class ModLogCommand extends Command {
     public constructor() {
@@ -49,7 +49,7 @@ export default class ModLogCommand extends Command {
 
         let defaultAdmins: string[] = [guildOwner.id];
 
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
 

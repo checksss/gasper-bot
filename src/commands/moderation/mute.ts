@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment, { duration } from 'moment';
-import { owners } from '../../config';
+import botConfig from '../../config/botConfig';
 import ms from 'ms';
 import wh from '../../structures/webHook';
 
@@ -73,7 +73,7 @@ export default class MuteCommand extends Command {
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
 
         let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultAdmins.push(owner);
         }
         //@ts-ignore
@@ -86,17 +86,18 @@ export default class MuteCommand extends Command {
 
         let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
         let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
+        for (var owner in botConfig.botOwner) {
             defaultMods.push(owner);
         }
 
         //@ts-ignore
         let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
+        botConfig.botOwner
+            .forEach(o => {
+                if (!moderators.includes(o)) {
+                    moderators.push(o);
+                }
+            })
 
         const clientMember = message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
@@ -240,7 +241,7 @@ export default class MuteCommand extends Command {
                     icon_url: member.user.displayAvatarURL()
                 },
                 description: stripIndents`
-                **Action**: ${ms(time) > 0 ? `Tempmute` : `Mute` }
+                **Action**: ${ms(time) > 0 ? `Tempmute` : `Mute`}
                 **Reason:** ${reason ? reason : 'No reason'}${ms(time) > 0 ? `
                 **Duration:** ${ms(ms(time))}` : ''}
             `,
@@ -250,7 +251,7 @@ export default class MuteCommand extends Command {
             })
 
             let webhook = await wh.get('mute', this.client.user, logchannel as TextChannel);
-            if(!webhook) {
+            if (!webhook) {
                 webhook = await wh.create('mute', this.client.user, logchannel as TextChannel);
             }
             wh.send(webhook, message.guild, this.client.user, embed);
