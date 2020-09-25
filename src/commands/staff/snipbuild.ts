@@ -155,6 +155,8 @@ export default class SnipbuildCommand extends Command {
             message.author.id != this.client.ownerID
         ) return message.util!.reply('You\'re not allowed to use custom embeds and snipbuilds.');
 
+        name = await SensitivePatterns(name, this.client, message);
+
         //@ts-ignore
         let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.title`, '');
         if (titleRaw !== '' && method == 'create') {
@@ -309,7 +311,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             }
         case numberEmojis[1]:
             msg = await ColorManager(msg, method, name, user);
-            var colResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 30000 });
+            var colResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 45000 });
             if (!colResponses || colResponses.size < 1) return await msg.edit('request timed out.', { embed: null })
                 .then(async m => {
                     await m.reactions.removeAll();
@@ -333,7 +335,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             }
         case numberEmojis[2]:
             msg = await DescriptionManager(msg, method, name, user);
-            var descrResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 120000 });
+            var descrResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 2400000 });
             if (!descrResponses || descrResponses.size < 1) return await msg.edit('request timed out.', { embed: null })
                 .then(async m => {
                     await m.reactions.removeAll();
@@ -353,7 +355,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
 
         case numberEmojis[3]:
             msg = await FieldsManager(msg, method, name, user);
-            var fieldResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 240000 });
+            var fieldResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 360000 });
             if (!fieldResponses || fieldResponses.size < 1) return await msg.edit('request timed out.', { embed: null })
                 .then(async m => {
                     await m.reactions.removeAll();
@@ -456,8 +458,67 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
                 return await MainMenu(msg, user, client, method, name);
             }
         case numberEmojis[6]:
+            //@ts-ignore
+            let title: string = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.title`, '');
+            //@ts-ignore
+            let col: string = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.color`, '');
+            //@ts-ignore
+            let descr: string = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.description`, '');
+            //@ts-ignore
+            let fields: EmbedField[] = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.fields`, []);
+            //@ts-ignore
+            let footer: MessageEmbedFooter = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.footer`, {});
+            //@ts-ignore
+            let image: MessageEmbedImage = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.image`, { url: '' });
+            //@ts-ignore
+            let thumbnail: MessageEmbedThumbnail = await client.guildsettings.get(msg.guild!, `snipbuilds.${name}.thumbnail`, { url: '' });
+
+            msg = await NameManager(msg, method, name, user);
+
+            var nameResponses = await msg.channel.awaitMessages((m) => m.author.id === user.id, { max: 1, time: 30000 });
+            if (!nameResponses || nameResponses.size < 1) return await msg.edit('request timed out.', { embed: null })
+                .then(async m => {
+                    await m.reactions.removeAll();
+                    return await m.delete({ timeout: 5000 })
+                });
+
+            if (nameResponses.size > 0) {
+                let response: Message = nameResponses.first();
+                let rawName: string = response.content;
+                let nameString: string = await SensitivePatterns(rawName, client, msg, 'hide');
+
+                //@ts-ignore
+                if (title !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.title`, title);
+                //@ts-ignore
+                if (col !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.color`, col);
+                //@ts-ignore
+                if (descr !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.description`, descr);
+                //@ts-ignore
+                if (fields) await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.fields`, fields);
+                //@ts-ignore
+                if (footer) await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.footer`, footer);
+                //@ts-ignore
+                if (image.url !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.image`, image);
+                //@ts-ignore
+                if (thumbnail.url !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.thumbnail`, thumbnail);
+
+                //@ts-ignore
+                await client.guildsettings.delete(msg.guild!, `snipbuilds.${name}`);
+
+                var newName: string = await SensitivePatterns(nameString, client, msg);
+
+                return await MainMenu(msg, user, client, method, newName);
+            }
+
 
         case checkEmojis[0]:
+            await msg.reactions.removeAll();
+            //@ts-ignore
+            client.guildsettings.delete(msg.guild, `snipbuilds.${name}`);
+            return msg.edit(`Successfully deleted \`${name}\`.`, { embed: null })
+                .then(async m => {
+                    return await m.delete({ timeout: 5000 })
+                });
 
         case checkEmojis[1]:
             await msg.reactions.removeAll();
@@ -734,6 +795,27 @@ async function ImageManager(msg: Message, method: string, name: string, user: Us
         footer: {
             icon_url: msg.guild.iconURL({ format: 'png', dynamic: true }),
             text: `Snipbuild Generator ✧ IMAGE/THUMBNAIL ✧ ${method.toUpperCase()} ✧ ${name.toUpperCase()}`
+        }
+    })
+    return msg.edit(embed);
+}
+
+async function NameManager(msg: Message, method: string, name: string, user: User) {
+    let embed = new MessageEmbed({
+        author: {
+            name: `${user.tag}`,
+            iconURL: `${user.displayAvatarURL({ format: 'png', dynamic: true })}`
+        },
+        title: `Snipbuild ✧ ${method.toUpperCase()} ✧ ${name.toUpperCase()}`,
+        description: stripIndents`
+        **Change name**
+
+        You can now change the name of \`${name}\`.
+        *After this, it will automatically return to the Main Menu.*
+        `,
+        footer: {
+            icon_url: msg.guild.iconURL({ format: 'png', dynamic: true }),
+            text: `Snipbuild Generator ✧ NAME ✧ ${method.toUpperCase()} ✧ ${name.toUpperCase()}`
         }
     })
     return msg.edit(embed);
