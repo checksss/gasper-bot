@@ -4,8 +4,6 @@ import {
     MessageEmbed,
     GuildMember,
     NewsChannel,
-    User,
-    ChannelLogsQueryOptions,
     TextChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
