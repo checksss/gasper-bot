@@ -1,7 +1,14 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, GuildMember, NewsChannel } from 'discord.js';
+import {
+    Message,
+    MessageEmbed,
+    GuildMember,
+    NewsChannel,
+    User,
+    ChannelLogsQueryOptions,
+    TextChannel
+} from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { TextChannel } from 'discord.js';
 import moment from 'moment';
 import wh from '../../structures/webHook'
 
@@ -186,4 +193,24 @@ export default class PurgeCommand extends Command {
         }
 
     }
+}
+
+async function MessageFetcher(channel: TextChannel, limit: number, author?: User) {
+    const messages: Message[] = [];
+    let last_id: string;
+    while (limit > 0) {
+        const options: ChannelLogsQueryOptions = { limit: limit > 100 ? 100 : limit };
+        if (last_id) {
+            options.before = last_id;
+        }
+        limit -= options.limit;
+        const msgs = await channel.messages.fetch(options);
+        let msgAr: Message[] = msgs.filter(m => Date.now() - m.createdTimestamp < 1209600000).array();
+        if (author) {
+            msgAr = msgs.filter(m => m.author.id === author.id && Date.now() - m.createdTimestamp < 1209600000).array();
+        }
+        messages.concat(msgAr);
+        last_id = msgAr[msgAr.length - 1].id;
+    }
+    return messages;
 }

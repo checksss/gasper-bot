@@ -7,7 +7,7 @@ import { ChannelSettings } from '../models/ChannelSettings';
 
 const connectionManager = new ConnectionManager();
 connectionManager.create({
-	logging: false,
+	logging: true,
 	synchronize: true,
 	name: dbConfig.databaseName,
 	database: dbConfig.databaseName,

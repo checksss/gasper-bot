@@ -192,12 +192,12 @@ export default class StatsCommand extends Command {
 				},
 				{
 					name: '⇒ Invite',
-					value: '[Discord](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot)',
+					value: '[Discord](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot \'Invite me to your server!\')',
 					inline: true
 				},
 				{
 					name: '⇒ Development server',
-					value: '[Gasper\'s Playground](https://discord.gg/GrmxKeZ)',
+					value: '[Gasper\'s Playground](https://discord.gg/GrmxKeZ \'This is my home!\')',
 					inline: true
 				},
 				{
