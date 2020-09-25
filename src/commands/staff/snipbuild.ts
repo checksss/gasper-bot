@@ -17,11 +17,6 @@ import validator from 'validator';
 const numberEmojis: string[] = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣'];
 const checkEmojis: string[] = ['✅', '❎']
 
-const createMethods: string[] = ['create', 'c', 'add', 'cr', 'make', 'new'];
-const editMethods: string[] = ['edit', 'e', 'ed', 'change'];
-const deleteMethods: string[] = ['delete', 'remove', 'del', 'rm', 'd', 'r'];
-const sendMethods: string[] = ['send', 's'];
-
 export default class SnipbuildCommand extends Command {
     public constructor() {
         super('snipbuild', {
@@ -45,11 +40,6 @@ export default class SnipbuildCommand extends Command {
                     match: 'phrase',
                     type: Argument.union('string', async (_, phrase) => {
                         let method: string = '';
-
-                        if (createMethods.includes(phrase)) method = 'create';
-                        if (editMethods.includes(phrase)) method = 'edit';
-                        if (deleteMethods.includes(phrase)) method = 'delete';
-                        if (sendMethods.includes(phrase)) method = 'send';
 
                         let validMethods: string[] = ['create', 'edit', 'delete', 'send'];
                         if (validMethods.includes(method !== '' ? method : phrase)) return method;
@@ -164,11 +154,6 @@ export default class SnipbuildCommand extends Command {
             staffrole.size == 0 &&
             message.author.id != this.client.ownerID
         ) return message.util!.reply('You\'re not allowed to use custom embeds and snipbuilds.');
-
-        if (createMethods.includes(method)) method = 'create';
-        if (editMethods.includes(method)) method = 'edit';
-        if (deleteMethods.includes(method)) method = 'delete';
-        if (sendMethods.includes(method)) method = 'send';
 
         //@ts-ignore
         let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.title`, '');
