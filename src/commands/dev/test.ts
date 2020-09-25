@@ -25,18 +25,10 @@ export default class TestCommand extends Command {
     public async exec(message: Message): Promise<Message | Message[] | void> {
         if (message.deletable && !message.deleted) message.delete();
 
-        let reply = await message.util!.reply('Starting test script.');
+        //@ts-ignore
+        let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.heeey.title`, 'notitle');
 
-        await reply.edit('Running test script..');
+        message.util!.reply(titleRaw);
 
-        await reply.edit('Running test script....');
-
-        await message.channel.messages.fetch({ limit: 20 })
-            .then((msgs) => {
-                let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
-                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
-            });
-
-        return reply.edit('Done!');
     }
 }
