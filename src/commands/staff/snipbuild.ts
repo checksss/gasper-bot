@@ -53,7 +53,7 @@ export default class SnipbuildCommand extends Command {
                 {
                     id: 'name',
                     match: 'phrase',
-                    type: 'string',
+                    type: 'lowercase',
                     prompt: {
                         start: (msg: Message) => `${msg.author}, please provide at least the name of your snippet.`
                     }
@@ -216,6 +216,10 @@ export default class SnipbuildCommand extends Command {
             if (image.url !== '') embed.image = image;
             if (thumbnail.url !== '') embed.thumbnail = thumbnail;
             return await (channel as TextChannel).send(embed);
+        } else if (titleRaw === '' && method === 'edit') {
+            message.util!.reply('There\'s no embed with name ' + name + '.')
+                .then(m => m.delete({ timeout: 5000 }));
+            method = 'create';
         }
         let msg: Message = await message.channel.send('Loading snipbuild generator...');
         return await MainMenu(msg, message.author, this.client, method, name);
