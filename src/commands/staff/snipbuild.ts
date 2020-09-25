@@ -165,6 +165,10 @@ export default class SnipbuildCommand extends Command {
             message.author.id != this.client.ownerID
         ) return message.util!.reply('You\'re not allowed to use custom embeds and snipbuilds.');
 
+        if (createMethods.includes(method)) method = 'create';
+        if (editMethods.includes(method)) method = 'edit';
+        if (deleteMethods.includes(method)) method = 'delete';
+        if (sendMethods.includes(method)) method = 'send';
 
         //@ts-ignore
         let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.title`, '');
