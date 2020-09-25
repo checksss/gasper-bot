@@ -25,10 +25,7 @@ export default class TestCommand extends Command {
     public async exec(message: Message): Promise<Message | Message[] | void> {
         if (message.deletable && !message.deleted) message.delete();
 
-        //@ts-ignore
-        let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.heeey.title`, 'notitle');
-
-        message.util!.reply(titleRaw);
+        
 
     }
 }
