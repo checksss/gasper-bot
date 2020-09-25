@@ -159,7 +159,12 @@ export default class SnipbuildCommand extends Command {
 
         //@ts-ignore
         let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.title`, '');
-        if (titleRaw !== '' && method == 'create') {
+        if (titleRaw == '' && method == 'send') {
+            return message.util!.reply(`No such snippet \`${name}\`.`)
+                .then(async m => {
+                    return await m.delete({ timeout: 5000 })
+                });
+        } else if (titleRaw !== '' && method == 'create') {
             let confirmationMsg: Message = await message.util!.reply(`there already exists a snipbuild with the name \`${name}\` for this server.\nDo you want to edit it? Y/N`);
             let responses = await confirmationMsg.channel.awaitMessages((r: Message) => r.author!.id === authorMember!.id, { max: 1, time: 10000 });
             if (!responses || responses.size < 1) return message.util!.reply('request timed out.')
