@@ -36,10 +36,8 @@ export default class SayCommand extends Command {
     }
 
     public async exec(message: Message, { content, channel }: { content: string, channel: Channel }): Promise<Message | Message[]> {
-        if (message.deletable && !message.deleted) await message.delete();
         let textChannel = channel as TextChannel;
         if (message.author.id !== this.client.ownerID && !message.guild.channels.cache.has(channel.id)) return message.reply('I don\'t think that other servers will like this.\n' + (channel as TextChannel).name)
-        if (message.deletable && !message.deleted) await message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         const owners: string[] = this.client.ownerID as string[];
 
@@ -81,6 +79,7 @@ export default class SayCommand extends Command {
                 (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
-        return textChannel.send(content);
+        if (message.deletable && !message.deleted) await message.delete();
+        return await textChannel.send(content);
     }
 }

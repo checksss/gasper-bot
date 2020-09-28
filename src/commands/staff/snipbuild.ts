@@ -1,16 +1,17 @@
 import { stripIndents } from 'common-tags';
 import { Command, Argument, AkairoClient } from 'discord-akairo';
-import { MessageEmbedImage } from 'discord.js';
-import { MessageEmbedThumbnail } from 'discord.js';
-import { MessageEmbedFooter } from 'discord.js';
-import { EmbedField } from 'discord.js';
 import {
     MessageReaction,
     MessageEmbed,
     User,
     Message,
     Channel,
-    TextChannel
+    TextChannel,
+    MessageEmbedImage,
+    NewsChannel,
+    MessageEmbedThumbnail,
+    MessageEmbedFooter,
+    EmbedField
 } from 'discord.js';
 import validator from 'validator';
 
@@ -28,11 +29,13 @@ export default class SnipbuildCommand extends Command {
                 Use \`create\` method to create new snippet
                 Use \`edit\` method to edit existing snippet
                 Use \`delete\` do delete existing snippet
-                Use \`send\` to send it to the channel, specified by \`c=#channel\` or \`-c #channel\``,
+                Use \`send\` to send it to the channel, specified by \`c=#channel\` or \`-c #channel\`
+                Use \`list\` to list all available snipbuilds for this server`,
                 usage: ['<method> <name> [c=<channel>]'],
-                examples: ['create welcome', 'send c=#general']
+                examples: ['create welcome', 'send greet c=#general']
             },
             category: 'Staff',
+            channel: 'guild',
             ratelimit: 2,
             args: [
                 {
@@ -41,13 +44,13 @@ export default class SnipbuildCommand extends Command {
                     type: Argument.union('string', async (_, phrase) => {
                         let method: string = '';
 
-                        let validMethods: string[] = ['create', 'edit', 'delete', 'send'];
+                        let validMethods: string[] = ['create', 'edit', 'delete', 'send', 'list'];
                         if (validMethods.includes(method !== '' ? method : phrase)) return method;
                         return null;
                     }),
                     prompt: {
-                        start: (msg: Message) => `${msg.author}, do you wish to \`create\`, \`edit\`, \`delete\` or just \`send\` a snippet?`,
-                        retry: (msg: Message) => `${msg.author}, please provide a __valid__ method.\n*Do you wish to \`create\`, \`edit\`, \`delete\` or just \`send\` a snippet?*`
+                        start: (msg: Message) => `${msg.author}, do you wish to \`create\`, \`edit\`, \`delete\` or just \`send\` a snippet or just \`send\` a snippet or just want a \`list\` of them?`,
+                        retry: (msg: Message) => `${msg.author}, please provide a __valid__ method.\n*Do you wish to \`create\`, \`edit\`, \`delete\` or just \`send\` a snippet or just want a \`list\` of them?*`
                     }
                 },
                 {
@@ -81,19 +84,19 @@ export default class SnipbuildCommand extends Command {
                         retry: (msg: Message) => `${msg.author}, please provide a __valid__ channel.`,
                         start: (msg: Message) => `${msg.author}, please provide a channel.`
                     }
-                },
+                }/*,
                 {
                     id: 'status',
                     match: 'option',
                     type: 'string',
                     flag: ['-s ', 's='],
                     default: 'public'
-                }
+                }*/
             ]
         });
     }
 
-    public async exec(message: Message, { method, name, channel, status }: { method: string, name: string, channel: Channel, status: string }): Promise<Message | Message[]> {
+    public async exec(message: Message, { method, name, channel/*, status*/ }: { method: string, name: string, channel: Channel/*, status: string*/ }): Promise<Message | Message[]> {
 
         if (message.deletable && !message.deleted) await message.delete();
 
@@ -200,9 +203,9 @@ export default class SnipbuildCommand extends Command {
             //@ts-ignore
             let footer: MessageEmbedFooter = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.footer`, {});
             let restoredFooter: MessageEmbedFooter = {
-                text: await SensitivePatterns(footer.text, this.client, message),
-                iconURL: await SensitivePatterns(footer.iconURL, this.client, message)
+                text: await SensitivePatterns(footer.text, this.client, message)
             }
+            if (footer.iconURL && footer.iconURL !== '') restoredFooter.iconURL = await SensitivePatterns(footer.iconURL, this.client, message)
             footer = restoredFooter;
             //@ts-ignore
             let image: MessageEmbedImage = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.image`, { url: '' });
@@ -228,6 +231,11 @@ export default class SnipbuildCommand extends Command {
                 .then(m => m.delete({ timeout: 5000 }));
             method = 'create';
         }
+        message.channel.messages.fetch({ limit: 20 })
+            .then((msgs) => {
+                let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
+                (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
+            });
         let msg: Message = await message.channel.send('Loading snipbuild generator...');
         return await MainMenu(msg, message.author, this.client, method, name);
     }
@@ -402,10 +410,15 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
                 let footerString: string = await SensitivePatterns(rawFooter, client, msg, 'hide');
                 let embedFooter: MessageEmbedFooter = {};
                 let f = footerString.split(', ');
-                embedFooter = {
-                    text: f[0],
-                    iconURL: f[1].toLowerCase().includes(('http://' || 'https://') && ('.png' || '.gif' || '.webp' || '.jpg' || '.jpeg')) ? f[1] : msg.guild.iconURL({ format: 'png', dynamic: true })
+                function isValidURL(url: string): boolean {
+                    let isURL: boolean = validator.isURL(url);
+                    if (isURL && url.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp|webp)$/gi) != null) return true
+                    return false;
                 }
+                embedFooter = {
+                    text: f[0]
+                }
+                if (f[1] && f[1] != '') embedFooter.iconURL = isValidURL(f[1]) ? f[1] : msg.guild.iconURL({ format: 'png', dynamic: true })
 
                 //@ts-ignore
                 client.guildsettings.set(msg.guild!, `snipbuilds.${name}.footer`, embedFooter);
@@ -430,12 +443,9 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
                 let embedImage: MessageEmbedImage = { url: '' };
                 let embedThumbnail: MessageEmbedThumbnail = { url: '' };
                 arr.forEach(async (i) => {
-                    function isValidURL(url: string) {
+                    function isValidURL(url: string): boolean {
                         let isURL: boolean = validator.isURL(url);
-                        if (isURL) {
-                            if (url.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp|webp)$/gi) != null) return true
-                            return false;
-                        }
+                        if (isURL && url.match(/\w+\.(jpg|jpeg|gif|png|tiff|bmp|webp)$/gi) != null) return true
                         return false;
                     }
 

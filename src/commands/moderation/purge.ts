@@ -75,15 +75,17 @@ export default class PurgeCommand extends Command {
                 }
             })
 
+        var isOwner: boolean = this.client.ownerID.includes(message.author.id) || message.author.id === this.client.ownerID;
+
         const clientMember = await message.guild!.members.fetch(this.client.user!.id);
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
         var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        if (!moderators.includes(message.author!.id) && modrole.size == 0 && message.author.id != this.client.ownerID) return message.util!.reply('only moderators can purge.');
+        if (!moderators.includes(message.author!.id) && modrole.size == 0 && !isOwner) return message.util!.reply('only moderators can purge.');
 
-        if (!clientMember.permissions.has('MANAGE_MESSAGES')) return message.util!.reply('I\'m not allowed to delete messages.');
+        if (!clientMember.permissions.has('MANAGE_MESSAGES') && !isOwner) return message.util!.reply('I\'m not allowed to delete messages.');
 
-        if (amount < 1 || amount > 100) return message.util!.send('You can only delete between 1 and 100 messages.');
+        if (amount < 2 || amount > 99 && !isOwner) return message.util!.send('You can only bulk-delete between 1 and 100 messages.');
 
         //@ts-ignore
         const modlog = this.client.guildsettings.get(message.guild, 'config.message_logchannel', '');
