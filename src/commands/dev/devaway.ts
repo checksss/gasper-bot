@@ -87,7 +87,7 @@ export default class DevAwayCommand extends Command {
                 });
             case 1:
                 //@ts-ignore
-                var curStatus: boolean = await this.client.guildsettings.get('global', `away.${message.author.id}.status`, true);
+                var curStatus: boolean = await this.client.guildsettings.get('global', `away.${message.author.id}.status`, false);
                 if (curStatus) return message.util!.reply(`You're already set as away.`).then(async m => {
                     return await m.delete({ timeout: 5000 });
                 })
