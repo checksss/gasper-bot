@@ -1,8 +1,9 @@
 import { Listener } from "discord-akairo";
-import { Message, TextChannel, User } from "discord.js";
+import { Message, TextChannel, User, GuildMember, MessageEmbed } from "discord.js";
 import MessageLogger from '../../logger/Messagelog';
 import wordFilters from '../../structures/wordFilter';
 import botConfig from '../../config/botConfig';
+import wh from "../../structures/webHook";
 
 export default class MessageUpdateListener extends Listener {
     public constructor() {
@@ -20,6 +21,7 @@ export default class MessageUpdateListener extends Listener {
 
         devIDs.forEach(async d => {
             let dev: User = this.client.users.cache.get(d);
+            let devMember: GuildMember = newMessage.guild.members.cache.get(d);
             if (mentioned.filter(m => m.id === d).length > 0) {
                 //@ts-ignore
                 var awayStatus: boolean = this.client.guildsettings.get('global', `away.${d}.status`, false);
@@ -36,12 +38,31 @@ export default class MessageUpdateListener extends Listener {
                             this.client.guildsettings.set('global', `away.${d}.missed_users`, missedUsers);
                         }
 
-                        return await newMessage.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
+                        let embed = new MessageEmbed({
+                            title: '[AWAY]',
+                            description: await wh.sensitivePatterns(awayReason, this.client, newMessage),
+                            footer: {
+                                text: `${dev.tag} is currently away!`,
+                                icon_url: dev.displayAvatarURL({ format: 'png', dynamic: true })
+                            }
+                        })
+
+                        let hook = await wh.get('awaymessage', this.client.user, newMessage.channel as TextChannel)
+                        return await wh.send(hook, newMessage.guild, this.client.user, embed, {
+                            username: devMember.displayName,
+                            avatarURL: dev.displayAvatarURL({ format: 'png', dynamic: true })
+                        })
+                            .then(async w => {
+                                return await w.delete({ timeout: 5000 })
+                                    .catch()
+                            })
+                            .catch();
                     default:
                         break;
                 }
             }
         })
+
         //@ts-ignore
         const userprefixes: string[] = this.client.usersettings.get(newMessage.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
         //@ts-ignore

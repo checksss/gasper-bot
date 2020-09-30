@@ -160,7 +160,7 @@ export default class SnipbuildCommand extends Command {
             message.author.id != this.client.ownerID
         ) return message.util!.reply('You\'re not allowed to use custom embeds and snipbuilds.');
 
-        name = await SensitivePatterns(name, this.client, message);
+        name = await wh.sensitivePatterns(name, this.client, message);
 
         //@ts-ignore
         let titleRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.title`, '');
@@ -185,19 +185,19 @@ export default class SnipbuildCommand extends Command {
                 return confirmationMsg.edit(`cancelled.`).then(m => m.delete({ timeout: 5000 }));
             }
         } else if (titleRaw !== '' && method == 'send') {
-            let title = await SensitivePatterns(titleRaw, this.client, message);
+            let title = await wh.sensitivePatterns(titleRaw, this.client, message);
             //@ts-ignore
             let col: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.color`, '');
             //@ts-ignore
             let descrRaw: string = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.description`, '');
-            let descr: string = await SensitivePatterns(descrRaw, this.client, message);
+            let descr: string = await wh.sensitivePatterns(descrRaw, this.client, message);
 
             //@ts-ignore
             let fields: EmbedField[] = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.fields`, []);
             if (fields !== []) fields.forEach(async (f, k) => {
                 let restoredField: EmbedField = {
-                    name: await SensitivePatterns(f.name, this.client, message),
-                    value: await SensitivePatterns(f.value, this.client, message),
+                    name: await wh.sensitivePatterns(f.name, this.client, message),
+                    value: await wh.sensitivePatterns(f.value, this.client, message),
                     inline: f.inline ? true : false
                 }
                 fields[k] = restoredField;
@@ -205,17 +205,17 @@ export default class SnipbuildCommand extends Command {
             //@ts-ignore
             let footer: MessageEmbedFooter = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.footer`, {});
             let restoredFooter: MessageEmbedFooter = {
-                text: await SensitivePatterns(footer.text, this.client, message)
+                text: await wh.sensitivePatterns(footer.text, this.client, message)
             }
-            if (footer.iconURL && footer.iconURL !== '') restoredFooter.iconURL = await SensitivePatterns(footer.iconURL, this.client, message)
+            if (footer.iconURL && footer.iconURL !== '') restoredFooter.iconURL = await wh.sensitivePatterns(footer.iconURL, this.client, message)
             footer = restoredFooter;
             //@ts-ignore
             let image: MessageEmbedImage = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.image`, { url: '' });
-            let restoredImage: string = await SensitivePatterns(image.url, this.client, message);
+            let restoredImage: string = await wh.sensitivePatterns(image.url, this.client, message);
             image.url = restoredImage;
             //@ts-ignore
             let thumbnail: MessageEmbedThumbnail = await this.client.guildsettings.get(message.guild!, `snipbuilds.${name}.thumbnail`, { url: '' });
-            let restoredThumbnail: string = await SensitivePatterns(thumbnail.url, this.client, message);
+            let restoredThumbnail: string = await wh.sensitivePatterns(thumbnail.url, this.client, message);
             thumbnail.url = restoredThumbnail;
 
             let embed = new MessageEmbed({
@@ -241,43 +241,6 @@ export default class SnipbuildCommand extends Command {
         let msg: Message = await message.channel.send('Loading snipbuild generator...');
         return await MainMenu(msg, message.author, this.client, method, name);
     }
-}
-
-async function SensitivePatterns(str: string, client: AkairoClient, message: Message, action?: string) {
-    switch (action) {
-        case 'hide':
-            return str
-                .replace(new RegExp(`${client.token}`, 'g'), '--snip--')
-                .replace(new RegExp(`${message.guild.id}`, 'g'), ' %gid ')
-                .replace(new RegExp("'", 'g'), ' %sq ')
-                .replace(new RegExp('"', 'g'), ' %dq ')
-                .replace(new RegExp("```", 'g'), ' %tbt ')
-                .replace(new RegExp("`", 'g'), ' %bt ')
-                .replace(new RegExp('\\*\\*', 'g'), ' %b ')
-                .replace(new RegExp('\\*', 'g'), ' %i ')
-                .replace(new RegExp('__', 'g'), ' %ul ')
-                .replace(new RegExp('_', 'g'), ' %i ')
-                .replace(new RegExp('\\n', 'g'), ' %n ')
-                .replace(new RegExp('\\[', 'g'), ' %obr ')
-                .replace(new RegExp('\\]', 'g'), ' %cbr ')
-                .replace(new RegExp("\\?", 'g'), ' %qm ');
-        default:
-            return str
-                .replace(new RegExp(`${client.token}`, 'g'), '--snip--')
-                .replace(new RegExp(' %gid ', 'g'), `${message.guild.id}`)
-                .replace(new RegExp(' %sq ', 'g'), "'")
-                .replace(new RegExp(' %dq ', 'g'), '"')
-                .replace(new RegExp(' %tbt ', 'g'), "```")
-                .replace(new RegExp(' %bt ', 'g'), "`")
-                .replace(new RegExp(' %b ', 'g'), '**')
-                .replace(new RegExp(' %i ', 'g'), '*')
-                .replace(new RegExp(' %ul ', 'g'), '__')
-                .replace(new RegExp(' %n ', 'g'), '\n')
-                .replace(new RegExp(' %obr ', 'g'), '[')
-                .replace(new RegExp(' %cbr ', 'g'), ']')
-                .replace(new RegExp(' %qm ', 'g'), "?");
-    }
-
 }
 
 async function AwaitEmoji(msg: Message, user: User, method: string, name: string, client: AkairoClient) {
@@ -316,7 +279,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (responses.size > 0) {
                 let response: Message = responses.first();
                 let rawTitle: string = response.content
-                let title: string = await SensitivePatterns(rawTitle, client, msg, 'hide');
+                let title: string = await wh.sensitivePatterns(rawTitle, client, msg, 'hide');
                 //@ts-ignore
                 client.guildsettings.set(msg.guild!, `snipbuilds.${name}.title`, title);
 
@@ -359,7 +322,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (descrResponses.size > 0) {
                 let response: Message = descrResponses.first();
                 let rawDescr: string = response.content;
-                let description: string = await SensitivePatterns(rawDescr, client, msg, 'hide');
+                let description: string = await wh.sensitivePatterns(rawDescr, client, msg, 'hide');
                 //@ts-ignore
                 client.guildsettings.set(msg.guild!, `snipbuilds.${name}.description`, description);
 
@@ -379,7 +342,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (fieldResponses.size > 0) {
                 let response: Message = fieldResponses.first();
                 let rawFields: string = response.content;
-                let fieldString: string = await SensitivePatterns(rawFields, client, msg, 'hide');
+                let fieldString: string = await wh.sensitivePatterns(rawFields, client, msg, 'hide');
                 let fieldsArray: string[] = fieldString.split('; ');
                 let embedFields: EmbedField[] = [];
                 fieldsArray.forEach(async (fA, k) => {
@@ -409,7 +372,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (footerResponses.size > 0) {
                 let response: Message = footerResponses.first();
                 let rawFooter: string = response.content;
-                let footerString: string = await SensitivePatterns(rawFooter, client, msg, 'hide');
+                let footerString: string = await wh.sensitivePatterns(rawFooter, client, msg, 'hide');
                 let embedFooter: MessageEmbedFooter = {};
                 let f = footerString.split(', ');
                 function isValidURL(url: string): boolean {
@@ -440,7 +403,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (imageResponses.size > 0) {
                 let response: Message = imageResponses.first();
                 let rawImage: string = response.content;
-                let imageString: string = await SensitivePatterns(rawImage, client, msg, 'hide');
+                let imageString: string = await wh.sensitivePatterns(rawImage, client, msg, 'hide');
                 let arr = imageString.split(', ');
                 let embedImage: MessageEmbedImage = { url: '' };
                 let embedThumbnail: MessageEmbedThumbnail = { url: '' };
@@ -502,7 +465,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
             if (nameResponses.size > 0) {
                 let response: Message = nameResponses.first();
                 let rawName: string = response.content;
-                let nameString: string = await SensitivePatterns(rawName, client, msg, 'hide');
+                let nameString: string = await wh.sensitivePatterns(rawName, client, msg, 'hide');
 
                 //@ts-ignore
                 if (title !== '') await client.guildsettings.set(msg.guild!, `snipbuilds.${nameString}.title`, title);
@@ -522,7 +485,7 @@ async function EmbedSwitcher(emoji: string, msg: Message, method: string, name: 
                 //@ts-ignore
                 await client.guildsettings.delete(msg.guild!, `snipbuilds.${name}`);
 
-                var newName: string = await SensitivePatterns(nameString, client, msg);
+                var newName: string = await wh.sensitivePatterns(nameString, client, msg);
 
                 return await MainMenu(msg, user, client, method, newName);
             }

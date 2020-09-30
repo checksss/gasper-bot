@@ -1,11 +1,9 @@
 import { Listener } from 'discord-akairo';
-import { Message, TextChannel, User } from 'discord.js';
+import { Message, TextChannel, User, GuildMember, MessageEmbed } from 'discord.js';
 import wordFilters from '../../structures/wordFilter';
 import botConfig from '../../config/botConfig';
 import MessageLogger from '../../logger/Messagelog';
 import wh from '../../structures/webHook';
-import { MessageEmbed } from 'discord.js';
-import { readSync } from 'fs';
 
 export default class MessageListener extends Listener {
 	public constructor() {
@@ -23,6 +21,7 @@ export default class MessageListener extends Listener {
 
 		devIDs.forEach(async d => {
 			let dev: User = this.client.users.cache.get(d);
+			let devMember: GuildMember = message.guild.members.cache.get(d);
 			if (mentioned.filter(m => m.id === d).length > 0) {
 				//@ts-ignore
 				var awayStatus: boolean = this.client.guildsettings.get('global', `away.${d}.status`, false);
@@ -41,18 +40,23 @@ export default class MessageListener extends Listener {
 
 						let embed = new MessageEmbed({
 							title: '[AWAY]',
-							description: awayReason,
+							description: await wh.sensitivePatterns(awayReason, this.client, message),
 							footer: {
 								text: `${dev.tag} is currently away!`,
 								icon_url: dev.displayAvatarURL({ format: 'png', dynamic: true })
 							}
 						})
 
-						return (await wh.get('awaymessage', this.client.user, message.channel as TextChannel)).send(embed).catch(async e => {
-							if (e) {
-								return await message.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
-							}
-						});
+						let hook = await wh.get('awaymessage', this.client.user, message.channel as TextChannel)
+						return await wh.send(hook, message.guild, this.client.user, embed, {
+							username: devMember.displayName,
+							avatarURL: dev.displayAvatarURL({ format: 'png', dynamic: true })
+						})
+							.then(async w => {
+								return await w.delete({ timeout: 5000 })
+									.catch()
+							})
+							.catch();
 					default:
 						break;
 				}
