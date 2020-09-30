@@ -110,7 +110,7 @@ export default class DevAwayCommand extends Command {
                 //@ts-ignore
                 await this.client.guildsettings.set('global', `away.${message.author.id}.missed_users`, []);
 
-                var webhook = await wh.get('away', this.client.user, message.channel as TextChannel);
+                var webhook = await wh.get('awaymessage', this.client.user, message.channel as TextChannel);
                 return await wh.send(webhook, message.guild, this.client.user, embed, {
                     username: message.guild.me.displayName,
                     avatarURL: this.client.user.displayAvatarURL({ format: 'png', dynamic: true })
