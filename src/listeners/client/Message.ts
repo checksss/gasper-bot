@@ -44,7 +44,8 @@ export default class MessageListener extends Listener {
 							footer: {
 								text: `${dev.tag} is currently away!`,
 								icon_url: dev.displayAvatarURL({ format: 'png', dynamic: true })
-							}
+							},
+							color: devMember.displayHexColor
 						})
 
 						let hook = await wh.get('awaymessage', this.client.user, message.channel as TextChannel)

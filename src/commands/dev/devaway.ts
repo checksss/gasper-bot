@@ -47,7 +47,8 @@ export default class DevAwayCommand extends Command {
             author: {
                 name: message.author.tag,
                 icon_url: message.author.displayAvatarURL({ format: 'png', dynamic: true })
-            }
+            },
+            color: message.member.displayHexColor
         })
 
         reason = await wh.sensitivePatterns(reason, this.client, message, 'hide');
