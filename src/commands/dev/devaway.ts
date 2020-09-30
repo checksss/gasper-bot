@@ -23,7 +23,7 @@ export default class DevAwayCommand extends Command {
                     match: 'option',
                     type: 'number',
                     flag: ['-s ', 's='],
-                    default: 1
+                    default: 0
                 },
                 {
                     id: 'reason',
