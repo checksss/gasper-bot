@@ -14,6 +14,7 @@ import {
     EmbedField
 } from 'discord.js';
 import validator from 'validator';
+import wh from '../../structures/webHook';
 
 const numberEmojis: string[] = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣'];
 const checkEmojis: string[] = ['✅', '❎']
@@ -36,6 +37,7 @@ export default class SnipbuildCommand extends Command {
             },
             category: 'Staff',
             channel: 'guild',
+            clientPermissions: ['MANAGE_WEBHOOKS'],
             ratelimit: 2,
             args: [
                 {
@@ -44,7 +46,7 @@ export default class SnipbuildCommand extends Command {
                     type: Argument.union('string', async (_, phrase) => {
                         let method: string = '';
 
-                        let validMethods: string[] = ['create', 'edit', 'delete', 'send', 'list'];
+                        let validMethods: string[] = ['create', 'edit', 'delete', 'send'/*, 'list'*/];
                         if (validMethods.includes(method !== '' ? method : phrase)) return method;
                         return null;
                     }),
@@ -225,7 +227,7 @@ export default class SnipbuildCommand extends Command {
             if (footer) embed.footer = footer;
             if (image.url !== '') embed.image = image;
             if (thumbnail.url !== '') embed.thumbnail = thumbnail;
-            return await (channel as TextChannel).send(embed);
+            return (await wh.get('snipbuilds', this.client.user, channel as TextChannel)).send(embed);
         } else if (titleRaw === '' && method === 'edit') {
             message.util!.reply('There\'s no embed with name ' + name + '.')
                 .then(m => m.delete({ timeout: 5000 }));

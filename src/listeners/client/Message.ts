@@ -3,6 +3,9 @@ import { Message, TextChannel, User } from 'discord.js';
 import wordFilters from '../../structures/wordFilter';
 import botConfig from '../../config/botConfig';
 import MessageLogger from '../../logger/Messagelog';
+import wh from '../../structures/webHook';
+import { MessageEmbed } from 'discord.js';
+import { readSync } from 'fs';
 
 export default class MessageListener extends Listener {
 	public constructor() {
@@ -36,7 +39,20 @@ export default class MessageListener extends Listener {
 							this.client.guildsettings.set('global', `away.${d}.missed_users`, missedUsers);
 						}
 
-						return await message.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
+						let embed = new MessageEmbed({
+							title: '[AWAY]',
+							description: awayReason,
+							footer: {
+								text: `${dev.tag} is currently away!`,
+								icon_url: dev.displayAvatarURL({ format: 'png', dynamic: true })
+							}
+						})
+
+						return (await wh.get('awaymessage', this.client.user, message.channel as TextChannel)).send(embed).catch(async e => {
+							if (e) {
+								return await message.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
+							}
+						});
 					default:
 						break;
 				}

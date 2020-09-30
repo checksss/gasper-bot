@@ -7,8 +7,8 @@ import {
     Guild
 } from "discord.js";
 
-export default {
-    async create(
+export default class wh {
+    private static async create(
         whType: string,
         client: User,
         channel: TextChannel | NewsChannel,
@@ -44,8 +44,8 @@ export default {
                     }
                 })
         return webhook;
-    },
-    async get(
+    }
+    public static async get(
         whType: string,
         client: User,
         channel: TextChannel | NewsChannel
@@ -55,9 +55,12 @@ export default {
                 .fetchWebhooks())
                 .filter(w => w.name === `${client.username.toLowerCase()}-${whType}-${channel.name}`)
                 .first();
+        if (!webhook) {
+            webhook = await wh.create(whType, client, channel);
+        }
         return webhook;
-    },
-    async send(
+    }
+    public static async send(
         webhook: Webhook,
         guild: Guild,
         client: User,

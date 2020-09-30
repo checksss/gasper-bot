@@ -184,9 +184,6 @@ export default class BugreportCommand extends Command {
             let reportChannel = home.channels.cache.get(rcID);
             if (reportChannel && rcID !== '') {
                 let webhook = await wh.get('bugreport', this.client.user, reportChannel as TextChannel);
-                if (!webhook) {
-                    webhook = await wh.create('bugreport', this.client.user, reportChannel as TextChannel);
-                }
                 return wh.send(webhook, home, this.client.user, submitEmbed);
             } else {
                 return owner.send(submitEmbed);

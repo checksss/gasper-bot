@@ -130,9 +130,6 @@ export default class PurgeCommand extends Command {
 
                                 let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
                                 let webhook = await wh.get('mod-log', this.client.user, logchannel as TextChannel);
-                                if (!webhook) {
-                                    webhook = await wh.create('mod-log', this.client.user, logchannel as TextChannel);
-                                }
                                 wh.send(webhook, message.guild, this.client.user, embed);
                             };
                         });
@@ -169,9 +166,6 @@ export default class PurgeCommand extends Command {
 
                         let logchannel = message.guild.channels.cache.get(modlog) as TextChannel;
                         let webhook = await wh.get('mod-log', this.client.user, logchannel as TextChannel);
-                        if (!webhook) {
-                            webhook = await wh.create('mod-log', this.client.user, logchannel as TextChannel);
-                        }
                         wh.send(webhook, message.guild, this.client.user, embed);
                     };
                 });

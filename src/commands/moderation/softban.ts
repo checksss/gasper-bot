@@ -187,9 +187,6 @@ export default class SoftbanCommand extends Command {
             })
 
             let webhook = await wh.get('infractions-log', this.client.user, logchannel as TextChannel);
-            if (!webhook) {
-                webhook = await wh.create('infractions-log', this.client.user, logchannel as TextChannel);
-            }
             wh.send(webhook, message.guild, this.client.user, embed);
         }
 

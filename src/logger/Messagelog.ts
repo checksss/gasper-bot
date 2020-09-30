@@ -37,9 +37,6 @@ export default class MessageLogger {
         });
 
         let webhook = await wh.get('sendmessage-log', log.guild.me.user, log);
-        if (!webhook) {
-            webhook = await wh.create('sendmessage-log', log.guild.me.user, log);
-        }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
 
@@ -98,9 +95,6 @@ export default class MessageLogger {
         });
 
         let webhook = await wh.get('editmessage-log', log.guild.me.user, log);
-        if (!webhook) {
-            webhook = await wh.create('editmessage-log', log.guild.me.user, log);
-        }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
 
@@ -142,9 +136,6 @@ export default class MessageLogger {
         });
 
         let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
-        if (!webhook) {
-            webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
-        }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
 
@@ -185,9 +176,6 @@ export default class MessageLogger {
         });
 
         let webhook = await wh.get('deletemessage-log', log.guild.me.user, log);
-        if (!webhook) {
-            webhook = await wh.create('deletemessage-log', log.guild.me.user, log);
-        }
         wh.send(webhook, log.guild, log.guild.me.user, embed);
     }
 }

@@ -1,8 +1,8 @@
 import { stripIndents } from 'common-tags';
-import { Argument } from 'discord-akairo';
-import { Command } from 'discord-akairo';
-import { Message, MessageEmbed } from 'discord.js';
+import { Argument, Command } from 'discord-akairo';
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
 import moment from 'moment';
+import wh from '../../structures/webHook';
 
 export default class DevAwayCommand extends Command {
     public constructor() {
@@ -106,6 +106,9 @@ export default class DevAwayCommand extends Command {
                 //@ts-ignore
                 await this.client.guildsettings.set('global', `away.${message.author.id}.missed_users`, []);
         }
+
+        let webhook = wh.get('away', this.client.user, message.channel as TextChannel);
+        
         return await message.util.reply(embed);
     }
 }

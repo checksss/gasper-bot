@@ -82,9 +82,6 @@ export default class SuggestionsCommand extends Command {
         let suggestionChannel = home.channels.cache.get(scID);
         if (suggestionChannel && scID !== '') {
             let webhook = await wh.get('suggestion', this.client.user, suggestionChannel as TextChannel);
-            if (!webhook) {
-                webhook = await wh.create('suggestion', this.client.user, suggestionChannel as TextChannel);
-            }
             wh.send(webhook, home, this.client.user, submitEmbed);
         } else {
             owner.send(submitEmbed);
