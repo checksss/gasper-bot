@@ -1,5 +1,5 @@
 import { Listener } from "discord-akairo";
-import { Message, TextChannel } from "discord.js";
+import { Message, TextChannel, User } from "discord.js";
 import MessageLogger from '../../logger/Messagelog';
 import wordFilters from '../../structures/wordFilter';
 import botConfig from '../../config/botConfig';
@@ -14,6 +14,34 @@ export default class MessageUpdateListener extends Listener {
     }
 
     public async exec(oldMessage: Message, newMessage: Message): Promise<any> {
+
+        const mentioned: User[] = newMessage.mentions.users.array();
+        const devIDs: string[] = this.client.ownerID as string[];
+
+        devIDs.forEach(async d => {
+            let dev: User = this.client.users.cache.get(d);
+            if (mentioned.filter(m => m.id === d).length > 0) {
+                //@ts-ignore
+                var awayStatus: boolean = this.client.guildsettings.get('global', `away.${d}.status`, false);
+                //@ts-ignore
+                var awayReason: string = this.client.guildsettings.get('global', `away.${d}.reason`, '');
+                //@ts-ignore
+                var missedUsers: string[] = this.client.guildsettings.get('global', `away.${d}.missed_users`, []);
+
+                switch (awayStatus) {
+                    case true:
+                        if (!missedUsers.includes(newMessage.author.id)) {
+                            missedUsers.push(newMessage.author.id);
+                            //@ts-ignore
+                            this.client.guildsettings.set('global', `away.${d}.missed_users`, missedUsers);
+                        }
+
+                        return await newMessage.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
+                    default:
+                        break;
+                }
+            }
+        })
         //@ts-ignore
         const userprefixes: string[] = this.client.usersettings.get(newMessage.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
         //@ts-ignore

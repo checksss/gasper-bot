@@ -1,10 +1,8 @@
 import { Listener } from 'discord-akairo';
-import { Message, TextChannel, MessageEmbed } from 'discord.js';
+import { Message, TextChannel, User } from 'discord.js';
 import wordFilters from '../../structures/wordFilter';
 import botConfig from '../../config/botConfig';
 import MessageLogger from '../../logger/Messagelog';
-import { stripIndents } from 'common-tags';
-import moment from 'moment';
 
 export default class MessageListener extends Listener {
 	public constructor() {
@@ -16,10 +14,39 @@ export default class MessageListener extends Listener {
 	}
 
 	public async exec(message: Message): Promise<any> {
+
+		const mentioned: User[] = message.mentions.users.array();
+		const devIDs: string[] = this.client.ownerID as string[];
+
+		devIDs.forEach(async d => {
+			let dev: User = this.client.users.cache.get(d);
+			if (mentioned.filter(m => m.id === d).length > 0) {
+				//@ts-ignore
+				var awayStatus: boolean = this.client.guildsettings.get('global', `away.${d}.status`, false);
+				//@ts-ignore
+				var awayReason: string = this.client.guildsettings.get('global', `away.${d}.reason`, '');
+				//@ts-ignore
+				var missedUsers: string[] = this.client.guildsettings.get('global', `away.${d}.missed_users`, []);
+
+				switch (awayStatus) {
+					case true:
+						if (!missedUsers.includes(message.author.id)) {
+							missedUsers.push(message.author.id);
+							//@ts-ignore
+							this.client.guildsettings.set('global', `away.${d}.missed_users`, missedUsers);
+						}
+
+						return await message.util!.reply(`${dev.tag} is currently away:\n\`\`\`${awayReason && awayReason !== '' ? awayReason : 'No reason specified.'}\`\`\``);
+					default:
+						break;
+				}
+			}
+		})
+
 		//@ts-ignore
-		const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
+		const userprefixes: string[] = await this.client.usersettings.get(message.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
 		//@ts-ignore
-		const guildprefix: string = this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix);
+		const guildprefix: string = await this.client.guildsettings.get(message.guild, 'config.prefix', botConfig.botDefaultPrefix);
 
 		let n: number = 0;
 
@@ -58,7 +85,7 @@ export default class MessageListener extends Listener {
 		);
 
 		//@ts-ignore
-		const logchannel = this.client.guildsettings.get(message.guild, 'config.message_logchannel', '');
+		const logchannel = await this.client.guildsettings.get(message.guild, 'config.message_logchannel', '');
 		const msglog = this.client.channels.cache.get(logchannel) as TextChannel;
 
 		if (msglog && msglog != null && n === 0) {
