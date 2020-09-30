@@ -192,7 +192,7 @@ export default class StatsCommand extends Command {
 				},
 				{
 					name: '⇒ Invite',
-					value: '[Discord](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot \'Invite me to your server!\')',
+					value: `[Discord](https://discordapp.com/api/oauth2/authorize?client_id=${this.client.user.id}&permissions=0&scope=bot \'Invite me to your server!\')`,
 					inline: true
 				},
 				{
