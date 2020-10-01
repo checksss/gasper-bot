@@ -3,6 +3,7 @@ import { Message, MessageEmbed, TextChannel, User, NewsChannel } from 'discord.j
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import wh from '../../structures/webHook'
+import Mods from '../../structures/Moderators';
 
 export default class UnbanCommand extends Command {
     public constructor() {
@@ -42,43 +43,14 @@ export default class UnbanCommand extends Command {
     public async exec(message: Message, { user, reason }: { user: User, reason: string }): Promise<Message | Message[]> {
         if (message.deletable && !message.deleted) message.delete();
         if (message.deletable && !message.deleted) await message.delete();
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
 
-        let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners
-            .forEach(o => {
-                if (!moderators.includes(o)) {
-                    moderators.push(o);
-                }
-            })
+        let isMod: boolean = await Mods.check(this.client, message.guild, message.member);
+        if (!isMod) return message.util!.reply('only moderators can use this command.');
 
         const clientMember = message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
         if (!clientMember.permissions.has('BAN_MEMBERS')) return message.util!.reply('I\'m not allowed to unban members.');
-
-        var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        if (!moderators.includes(message.author!.id) && modrole.size == 0) return message.util!.reply('only moderators can unban members.');
 
         if (user.id === clientMember.user.id) return message.util!.reply('you can\'t unban me.');
         if (message.author!.id === user.id) return message.util!.reply('you can\'t unban yourself.');

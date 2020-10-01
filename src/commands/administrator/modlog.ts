@@ -1,6 +1,7 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import Admins from '../../structures/Administrators';
 
 export default class ModLogCommand extends Command {
     public constructor() {
@@ -43,28 +44,10 @@ export default class ModLogCommand extends Command {
     }
 
     public async exec(message: Message, { method, logtype, channel }: { method: string, logtype: string, channel: TextChannel }): Promise<Message | Message[]> {
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
-        let defaultAdmins: string[] = [guildOwner.id];
-
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-        if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
+        let isAdmin: boolean = await Admins.check(this.client, message.guild, message.member);
+        if (!isAdmin) return message.util!.reply('only administrators can use this command.');
 
         const editTypes: string[] = ['message_edit', 'message_update', 'msgedit', 'messageedit'];
         const deleteTypes: string[] = ['message_delete', 'messagedelete', 'msgdelete'];

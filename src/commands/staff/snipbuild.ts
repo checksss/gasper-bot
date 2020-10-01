@@ -14,6 +14,7 @@ import {
     EmbedField
 } from 'discord.js';
 import validator from 'validator';
+import Staff from '../../structures/Staffmembers';
 import wh from '../../structures/webHook';
 
 const numberEmojis: string[] = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣'];
@@ -102,63 +103,14 @@ export default class SnipbuildCommand extends Command {
 
         if (message.deletable && !message.deleted) await message.delete();
 
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
         const owners: string[] = this.client.ownerID as string[]
 
-        if (message.author.id !== this.client.ownerID && !message.guild.channels.cache.has(channel.id)) return message.reply('I don\'t think that other servers will like this.\n' + (channel as TextChannel).name)
+        if (!owners.includes(message.author.id) && !message.guild.channels.cache.has(channel.id)) return message.reply('I don\'t think that other servers will like this.\n' + (channel as TextChannel).name)
 
-        let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
-
-        let defaultStaff: string[] = []
-        for (let m in moderators) {
-            defaultStaff.push(m);
-        }
-        for (let a in administrators) {
-            defaultStaff.push(a);
-        }
-        //@ts-ignore
-        let staff: string[] = await this.client.guildsettings.get(message.guild!, 'config.staff', [])
-        if (staff.length === 0) {
-            staff = defaultStaff
-            //@ts-ignore
-            this.client.guildsettings.set(message.guild!, 'config.staff', staff);
-        }
+        let isStaff: boolean = await Staff.check(this.client, message.guild, message.member);
+        if (!isStaff) return message.util!.reply('only staff members can use this command.');
 
         const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        var staffrole = authorMember.roles.cache.filter((r): boolean => staff.includes(r.id))
-        if (
-            !moderators.includes(message.author!.id) &&
-            modrole.size == 0 &&
-            !staff.includes(message.author!.id) &&
-            staffrole.size == 0 &&
-            message.author.id != this.client.ownerID
-        ) return message.util!.reply('You\'re not allowed to use custom embeds and snipbuilds.');
 
         name = await wh.sensitivePatterns(name, this.client, message);
 

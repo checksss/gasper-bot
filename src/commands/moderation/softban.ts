@@ -12,6 +12,7 @@ import moment from 'moment';
 import ms from 'ms';
 import { Argument } from 'discord-akairo';
 import wh from '../../structures/webHook'
+import Mods from '../../structures/Moderators';
 
 export default class SoftbanCommand extends Command {
     public constructor() {
@@ -68,34 +69,9 @@ export default class SoftbanCommand extends Command {
         if (message.deletable && !message.deleted) message.delete();
         if (message.deletable && !message.deleted) await message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
 
-        let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners
-            .forEach(o => {
-                if (!moderators.includes(o)) {
-                    moderators.push(o);
-                }
-            })
+        let isMod: boolean = await Mods.check(this.client, message.guild, message.member);
+        if (!isMod) return message.util!.reply('only moderators can use this command.');
 
         const clientMember = message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
@@ -103,9 +79,6 @@ export default class SoftbanCommand extends Command {
         const isMember = message.guild.members.cache.has(user.id) ? true : false;
 
         if (!clientMember.permissions.has('BAN_MEMBERS')) return message.util!.reply('I\'m not allowed to ban members.');
-
-        var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        if (!moderators.includes(message.author!.id) && modrole.size == 0) return message.util!.reply('only moderators can ban members.');
 
         if (user.id === clientMember.user.id) return message.util!.reply('you can\'t ban me.');
         if (message.author!.id === user.id) return message.util!.reply('you can\'t ban yourself.');

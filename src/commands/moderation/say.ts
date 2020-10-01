@@ -1,6 +1,7 @@
 import { Command, Argument } from 'discord-akairo';
 import { Message, Channel, TextChannel, NewsChannel } from 'discord.js';
 import botConfig from '../../config/botConfig';
+import Mods from '../../structures/Moderators';
 
 export default class SayCommand extends Command {
     public constructor() {
@@ -38,40 +39,9 @@ export default class SayCommand extends Command {
     public async exec(message: Message, { content, channel }: { content: string, channel: Channel }): Promise<Message | Message[]> {
         let textChannel = channel as TextChannel;
         if (message.author.id !== this.client.ownerID && !message.guild.channels.cache.has(channel.id)) return message.reply('I don\'t think that other servers will like this.\n' + (channel as TextChannel).name)
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
 
-        let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners
-            .forEach(o => {
-                if (!moderators.includes(o)) {
-                    moderators.push(o);
-                }
-            })
-
-        const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        if (!moderators.includes(message.author!.id) && modrole.size == 0 && message.author.id != this.client.ownerID) return message.util!.reply('You\'re not allowed to speak through me.');
+        let isMod: boolean = await Mods.check(this.client, message.guild, message.member);
+        if (!isMod) return message.util!.reply('only moderators can use this command.');
 
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {

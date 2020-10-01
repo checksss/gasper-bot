@@ -1,15 +1,16 @@
 import { Command } from 'discord-akairo';
-import { 
-    GuildMember, 
-    Message, 
-    MessageEmbed, 
-    TextChannel, 
-    User, 
+import {
+    GuildMember,
+    Message,
+    MessageEmbed,
+    TextChannel,
+    User,
     NewsChannel
 } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import moment from 'moment';
 import wh from '../../structures/webHook'
+import Mods from '../../structures/Moderators';
 
 export default class BanCommand extends Command {
     public constructor() {
@@ -51,43 +52,16 @@ export default class BanCommand extends Command {
     public async exec(message: Message, { user, reason, amount }: { user: User, reason: string, amount: number }): Promise<Message | Message[]> {
         if (message.deletable && !message.deleted) message.delete();
         const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
 
-        let defaultAdmins: string[] = [guildOwner.id];
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
-
-        const clientMember = await message.guild!.me!;
+        const clientMember = message.guild!.me!;
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
         const isMember = message.guild.members.cache.has(user.id) ? true : false;
 
-        if (!clientMember.permissions.has('BAN_MEMBERS')) return message.util!.reply('I\'m not allowed to ban members.');
+        let isMod: boolean = await Mods.check(this.client, message.guild, message.member);
+        if (!isMod) return message.util!.reply('only moderators can use this command.');
 
-        var modrole = authorMember.roles.cache.filter((r): boolean => moderators.includes(r.id))
-        if (!moderators.includes(message.author!.id) && modrole.size == 0) return message.util!.reply('only moderators can ban members.');
+        if (!clientMember.permissions.has('BAN_MEMBERS')) return message.util!.reply('I\'m not allowed to ban members.');
 
         if (user.id === clientMember.user.id) return message.util!.reply('you can\'t ban me.');
         if (message.author!.id === user.id) return message.util!.reply('you can\'t ban yourself.');
@@ -147,7 +121,7 @@ export default class BanCommand extends Command {
 
         //@ts-ignore
         const modLog = await this.client.guildsettings.get(message.guild!, 'config.ban_logchannel', '');
-        const logchannel = await message.guild.channels.cache.get(modLog);
+        const logchannel = message.guild.channels.cache.get(modLog);
         if (message.guild.channels.cache.has(modLog)) {
             const embed = new MessageEmbed({
                 color: clientMember.displayHexColor,

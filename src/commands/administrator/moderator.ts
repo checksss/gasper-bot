@@ -2,6 +2,8 @@ import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { Argument } from 'discord-akairo';
+import Admins from '../../structures/Administrators';
+import Mods from '../../structures/Moderators';
 
 export default class ModCommand extends Command {
     public constructor() {
@@ -36,44 +38,12 @@ export default class ModCommand extends Command {
     }
 
     public async exec(message: Message, { method, rolemember }: { method: string, rolemember: GuildMember | Role }): Promise<Message | Message[]> {
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
-        let defaultAdmins: string[] = [guildOwner.id];
+        let isAdmin: boolean = await Admins.check(this.client, message.guild, message.member);
+        if (!isAdmin) return message.util!.reply('only administrators can use this command.');
 
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        const authorMember = await message.guild!.members.fetch(message.author!.id);
-
-        var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-        if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
-
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        //@ts-ignore
-        if (moderators.length === 0) this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
+        let moderators: string[] = await Mods.get(this.client, message.guild);
 
         const clearID: string = rolemember.id;
 
@@ -110,7 +80,7 @@ export default class ModCommand extends Command {
 
         message.channel.messages.fetch({ limit: 20 })
             .then((msgs) => {
-                let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id && m.mentions.users.first() === message.author).array();
+                let messages: Message[] = msgs.filter(m => m.author.id === this.client.user.id  && m.mentions.users.first() === message.author).array();
                 (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
@@ -118,9 +88,8 @@ export default class ModCommand extends Command {
             case 'add':
                 if (moderators.includes(modID)) return message.util!.send(addAlreadyMod);
                 try {
-                    moderators.push(modID);
                     //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, 'config.moderators', moderators);
+                    await Mods.save(this.client, message, guild, modID);
                 } catch (e) {
                     this.client.users.cache.get(this.client.ownerID[0]).send(e);
                     return message.util!.send('Something went wrong.\n' + e.stack);
@@ -130,12 +99,7 @@ export default class ModCommand extends Command {
             case 'remove':
                 if (!moderators.includes(modID)) return message.util!.send(rmNotMod);
                 try {
-                    let newMods: Array<string> = [];
-                    moderators.forEach(m => {
-                        if (m !== modID) newMods.push(m);
-                    });
-                    //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, 'config.moderators', newMods);
+                    await Mods.remove(this.client, message.guild, modID);
                 } catch (e) {
                     this.client.users.cache.get(this.client.ownerID[0]).send(e);
                     return message.util!.send('Something went wrong.\n' + e.stack);

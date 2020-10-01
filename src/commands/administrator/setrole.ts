@@ -2,6 +2,8 @@ import { Command, PrefixSupplier, Argument } from 'discord-akairo';
 import { BitFieldResolvable, PermissionString, Message, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import validator from 'validator';
+import Admins from '../../structures/Administrators';
+import Mods from '../../structures/Moderators';
 
 const bindOptions: string[] = ['mute', 'moderators', 'administrators'];
 
@@ -135,38 +137,10 @@ export default class SetRoleCommand extends Command {
                 (message.channel as TextChannel | NewsChannel).bulkDelete(messages)
             });
 
-        let defaultAdmins: string[] = [guildOwner.id];
-
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-        let adminRoles: string[] = message.guild.roles.cache.filter((r) => r.permissions.has('ADMINISTRATOR')).map((roles): string => `${roles.id}`);
-        let defaultMods: string[] = adminRoles.concat(guildOwner.id);
-        for (var owner in owners) {
-            defaultMods.push(owner);
-        }
-        //@ts-ignore
-        let moderators: string[] = await this.client.guildsettings.get(message.guild!, 'config.moderators', defaultMods);
-        //@ts-ignore
-        if (moderators.length === 0) await this.client.guildsettings.set(message.guild!, 'config.moderators', defaultMods);
-        owners.forEach(o => {
-            if (!moderators.includes(o)) {
-                moderators.push(o);
-            }
-        })
-
         const authorMember = await message.guild!.members.fetch(message.author!.id);
 
-        var adminrole = authorMember.roles.cache.filter((r): boolean => administrators.includes(r.id))
-        if (!administrators.includes(message.author!.id) && adminrole.size == 0) return message.util!.reply('only administrators can use this command.');
+        let isAdmin: boolean = await Admins.check(this.client, message.guild, authorMember);
+        if (!isAdmin) return message.util!.reply('only administrators can use this command.');
 
         if (method === 'create') {
             if (bindOptions.includes(option)) {
@@ -226,7 +200,7 @@ export default class SetRoleCommand extends Command {
                 }
 
                 if (option === 'moderators') {
-                    moderators.push(newRole.id);
+                    Mods.save(this.client, message.guild, newRole);
                     if (message.guild.members.cache.get(this.client.user.id).permissions.has('MANAGE_MESSAGES')) {
                         await newRole.setPermissions(['MANAGE_MESSAGES'], `Created Mod-Role by ${message.author.tag}.`)
                     }
@@ -244,13 +218,12 @@ export default class SetRoleCommand extends Command {
                     }
                     await newRole.setColor(rolecolor);
                     //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, `config.${option}`, moderators);
                 } else if (option === 'administrators') {
                     if (message.author.id !== guildOwner.id) {
                         newRole.delete(`Failed to create new ${option}-role.`)
                         return msg.edit(`only the server owner is allowed to set administrators!`).then(m => m.delete({ timeout: 5000 }));
                     }
-                    administrators.push(newRole.id)
+                    Admins.save(this.client, message.guild, newRole);
                     await msg.edit(`which color the role should have?\n*Please provide a **hex-color**. You can pick one from there: <https://www.colorcodehex.com/html-color-picker.html>*`);
                     const colResponses = await msg.channel.awaitMessages((r: Message) => r.author!.id === authorMember!.id, { max: 1, time: 30000 });
                     if (!colResponses || colResponses.size < 1) return msg.edit('request timed out.').then(m => m.delete({ timeout: 5000 }));
@@ -267,8 +240,6 @@ export default class SetRoleCommand extends Command {
                     if (message.guild.members.cache.get(this.client.user.id).permissions.has('ADMINISTRATOR')) {
                         await newRole.setPermissions(['ADMINISTRATOR'], `Created Admin-Role by ${message.author.tag}.`);
                     }
-                    //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, `config.${option}`, administrators);
                 } else {
                     //@ts-ignore
                     await this.client.guildsettings.set(message.guild!, `config.${option}-role`, newRole.id);
@@ -330,24 +301,14 @@ export default class SetRoleCommand extends Command {
             }
             if (option === 'administrators') {
                 try {
-                    let newAdmins: string[] = [];
-                    administrators.forEach(m => {
-                        if (m !== role.id) newAdmins.push(m);
-                    });
-                    //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, 'config.administrators', newAdmins);
+                    await Admins.remove(this.client, message.guild, role.id);
                     return message.util!.reply(`role \`${role.name}\` successfully removed as ${option}-role!`).then(m => m.delete({ timeout: 5000 }));
                 } catch (e) {
                     return message.util!.reply('something went wrong.\n' + e.stack).then(m => m.delete({ timeout: 5000 }));
                 }
             } else if (option === 'moderators') {
                 try {
-                    let newMods: string[] = [];
-                    moderators.forEach(m => {
-                        if (m !== role.id) newMods.push(m);
-                    });
-                    //@ts-ignore
-                    await this.client.guildsettings.set(message.guild!, 'config.moderators', newMods);
+                    await Mods.remove(this.client, message.guild, role.id)
                     return message.util!.reply(`role \`${role.name}\` successfully removed as ${option}-role!`).then(m => m.delete({ timeout: 5000 }));
                 } catch (e) {
                     return message.util!.reply('something went wrong.\n' + e.stack).then(m => m.delete({ timeout: 5000 }));
@@ -355,39 +316,20 @@ export default class SetRoleCommand extends Command {
             };
 
             await role.delete(`Deleted by ${message.author.tag}`);
-            //@ts-ignore
-            await this.client.guildsettings.delete(message.guild!, `config.${option}-log`);
-            let newMods: string[] = [];
-            moderators.forEach((m) => {
-                if (m !== role.id) {
-                    newMods.push(m);
-                }
-            })
-            let newAdmins: string[] = [];
-            administrators.forEach((a) => {
-                if (a !== role.id) {
-                    newAdmins.push(a);
-                }
-            })
             if (option === 'moderators') {
-                //@ts-ignore
-                await this.client.guildsettings.set(message.guild!, `config.moderators`, newMods);
+                await Mods.remove(this.client, message.guild, role.id);
             }
             if (option === 'administrators') {
                 //@ts-ignore
-                await this.client.guildsettings.set(message.guild!, `config.administrators`, newAdmins);
+                await Admins.remove(this.client, message.guild, role.id);
             }
 
             return message.util!.reply(`successfully deleted role \`${role.name}\`.`).then(m => m.delete({ timeout: 5000 }));
         } else {
             if (option === 'moderators') {
-                moderators.push(role.id);
-                //@ts-ignore
-                await this.client.guildsettings.set(message.guild!, `config.${option}`, moderators);
+                await Mods.save(this.client, message.guild, role);
             } else if (option === 'administrators') {
-                administrators.push(role.id);
-                //@ts-ignore
-                await this.client.guildsettings.set(message.guild!, `config.${option}`, administrators);
+                await Admins.save(this.client, message.guild, role);
             } else {
                 //@ts-ignore
                 await this.client.guildsettings.set(message.guild!, `config.${option}-role`, role.id);
