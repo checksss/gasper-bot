@@ -13,6 +13,7 @@ export default class MessageDeleteListener extends Listener {
     }
 
     public async exec(message: Message | PartialMessage): Promise<any> {
+        if (!message.guild) return;
         //@ts-ignore
         const userprefixes: string[] = this.client.usersettings.get(message.author, 'config.prefixes', [botConfig.botDefaultPrefix]);
         //@ts-ignore

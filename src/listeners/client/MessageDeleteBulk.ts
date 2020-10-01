@@ -12,7 +12,7 @@ export default class MessageDeleteListener extends Listener {
     }
 
     public async exec(messages: Collection<string, Message | PartialMessage>): Promise<any> {
-
+        if (!messages.first().guild) return;
         const guildID: string = messages.map(msg => msg.guild.id)[0];
         const channelID: string = messages.map(msg => msg.channel.id)[0];
         const guild: Guild = this.client.guilds.cache.get(guildID);

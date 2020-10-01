@@ -19,6 +19,8 @@ export default class MessageListener extends Listener {
 		const mentioned: User[] = message.mentions.users.array();
 		const devIDs: string[] = this.client.ownerID as string[];
 
+		if (!message.guild) return;
+		
 		devIDs.forEach(async d => {
 			let dev: User = this.client.users.cache.get(d);
 			let devMember: GuildMember = message.guild.members.cache.get(d);

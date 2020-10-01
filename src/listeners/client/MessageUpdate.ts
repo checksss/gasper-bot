@@ -15,7 +15,7 @@ export default class MessageUpdateListener extends Listener {
     }
 
     public async exec(oldMessage: Message, newMessage: Message): Promise<any> {
-
+        if (!newMessage.guild && !oldMessage.guild) return;
         const mentioned: User[] = newMessage.mentions.users.array();
         const devIDs: string[] = this.client.ownerID as string[];
 
