@@ -1,6 +1,8 @@
 import { Command, PrefixSupplier, Argument } from 'discord-akairo';
 import { Message, GuildMember, Role, TextChannel, NewsChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import Admins from '../../structures/Administrators';
+import Owner from '../../structures/ServerOwner';
 
 export default class AdminCommand extends Command {
     public constructor() {
@@ -36,28 +38,12 @@ export default class AdminCommand extends Command {
     }
 
     public async exec(message: Message, { method, rolemember }: { method: string, rolemember: GuildMember | Role }): Promise<Message | Message[]> {
-        const guildOwner = await this.client.users.fetch(message.guild!.ownerID);
-        const owners: string[] = this.client.ownerID as string[];
         if (message.deletable && !message.deleted) message.delete();
 
-        let defaultAdmins: string[] = [guildOwner.id];
+        let administrators: string[] = await Admins.get(this.client, message.guild);
+        let isOwner: boolean = await Owner.check(this.client, message.guild, message.member);
 
-        for (var owner in owners) {
-            defaultAdmins.push(owner);
-        }
-
-        //@ts-ignore
-        let administrators: string[] = await this.client.guildsettings.get(message.guild!, 'config.administrators', defaultAdmins);
-        defaultAdmins.forEach(dA => {
-            if (!administrators.includes(dA)) {
-                administrators = administrators.concat(dA);
-            }
-        })
-
-        //@ts-ignore
-        if (administrators.length === 0) this.client.guildsettings.set(message.guild!, 'config.administrators', defaultAdmins);
-
-        if (message.author.id !== message.guild.ownerID && !owners.includes(message.author.id)) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
+        if (!isOwner) return message.reply(`This command is **server owner** only! Please ask <@${message.guild.ownerID}>!`).then(reply => reply.delete({ timeout: 5000, reason: 'Keep chat clean' }));
 
         const clearID: string = rolemember.id;
 

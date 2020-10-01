@@ -1,22 +1,13 @@
 import { AkairoClient } from "discord-akairo";
 import { Guild, GuildMember, Role } from "discord.js";
+import Owner from './ServerOwner';
 
 export default class Admins {
-
-    // get bot-developers as array
-    private static getDev = (client: AkairoClient): string[] => {
-        return client.ownerID as string[];
-    };
-
-    // get guild-owner
-    private static getOwner = (guild: Guild): string => {
-        return guild.ownerID;
-    };
 
     // get saved admins
     private static getAdmins = async (client: AkairoClient, guild: Guild): Promise<string[]> => {
         let adminRoles: string[] = guild.roles.cache.filter(r => r.permissions.has('ADMINISTRATOR')).map(ar => ar.id);
-        let defaultAdmins: string[] = Admins.getDev(client).concat(adminRoles.concat(Admins.getOwner(guild)));
+        let defaultAdmins: string[] = adminRoles.concat(await Owner.get(client, guild));
         //@ts-ignore
         let savedAdmins: string[] = await client.guildsettings.get(guild!, 'config.administrators', defaultAdmins);
 
