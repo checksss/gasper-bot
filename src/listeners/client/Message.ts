@@ -56,7 +56,7 @@ export default class MessageListener extends Listener {
 							avatarURL: dev.displayAvatarURL({ format: 'png', dynamic: true })
 						})
 							.then(async w => {
-								return await w.delete({ timeout: 5000 })
+								return await w.delete({ timeout: 10000 })
 									.catch()
 							})
 							.catch();
