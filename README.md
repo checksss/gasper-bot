@@ -1,10 +1,10 @@
 # Gasper
   
 >One Bot to rule 'em all!  
->Copyright (C) 2020 Florian Meyer  
+>Copyright (C) 2020-2021 Florian Meyer  
 >  
 >Contact:  
->datflow@gasper.fun  
+>info@datflow.de
 >DatFlow#0001 on Discord  
 >https://discord.gasper.fun  
 >  
@@ -20,7 +20,9 @@
 >  
 >You should have received a copy of the GNU Affero General Public License  
 >along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+ 
+# [CURRENTLY FROZEN PROJECT]
+ 
 # Add Gasper to your server!
 ## Productive version
 - [without permissions](https://discordapp.com/api/oauth2/authorize?client_id=673613224389640228&permissions=0&scope=bot 'no role') (wouldn't create role, but some commands may not work): 
